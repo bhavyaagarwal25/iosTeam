@@ -27,7 +27,7 @@ public struct ContentView: View {
                     Group {
                         switch selectedTab {
                         case 0: HomeView()
-                        case 1: CategoryView() // Previously SearchView, but they added CategoryView! Let's keep it Search for now unless we rename the tab
+                        case 1: SearchView()
                         case 2: CartView()
                         case 3: OrderTrackingView()
                         case 4: ProfileView()
