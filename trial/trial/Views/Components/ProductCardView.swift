@@ -34,12 +34,20 @@ public struct ProductCardView: View {
                     .fill(Color(uiColor: .secondarySystemBackground))
                     .frame(height: 110)
                 
-                Image(systemName: product.systemImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 48, height: 48)
-                    .foregroundColor(BlinkitTheme.brandGreen)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                if let uiImage = UIImage(named: "\(product.name.components(separatedBy: " ")[0].lowercased())_product") {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    Image(systemName: product.systemImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 48, height: 48)
+                        .foregroundColor(BlinkitTheme.brandGreen)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
                 
                 // Top Badge (Tag / Discount)
                 if let tag = product.tag {
