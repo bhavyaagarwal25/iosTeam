@@ -15,7 +15,7 @@ public class OrderService: ObservableObject {
     @Published public var activeOrder: Order? = nil
     @Published public var pastOrders: [Order] = MockData.mockPastOrders
     
-    private var currentActivity: Activity<OrderActivityAttributes>? = nil
+    private var currentActivity: Activity<BlinkitActivityAttributes>? = nil
     private var stageTimer: Timer?
     
     public init() {}
@@ -123,8 +123,8 @@ public class OrderService: ObservableObject {
             return
         }
         
-        let attributes = OrderActivityAttributes(orderId: order.id, itemCount: order.items.count)
-        let initialState = OrderActivityAttributes.ContentState(
+        let attributes = BlinkitActivityAttributes(activityId: order.id, deliveryAddress: order.deliveryAddress)
+        let initialState = BlinkitActivityAttributes.ContentState(
             stageName: order.stage.rawValue,
             etaMinutes: order.estimatedDeliveryMinutes,
             riderName: order.riderName,
@@ -147,7 +147,7 @@ public class OrderService: ObservableObject {
     
     private func updateLiveActivity(for order: Order) {
         guard let activity = currentActivity else { return }
-        let updatedState = OrderActivityAttributes.ContentState(
+        let updatedState = BlinkitActivityAttributes.ContentState(
             stageName: order.stage.rawValue,
             etaMinutes: order.estimatedDeliveryMinutes,
             riderName: order.riderName,
@@ -167,7 +167,7 @@ public class OrderService: ObservableObject {
     
     private func startOrderStageSimulation() {
         stageTimer?.invalidate()
-        stageTimer = Timer.scheduledTimer(withTimeInterval: 6.0, repeats: true) { [weak self] _ in
+        stageTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self = self, let current = self.activeOrder else { return }
                 if current.stage != .delivered {

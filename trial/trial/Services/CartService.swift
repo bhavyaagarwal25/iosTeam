@@ -56,7 +56,7 @@ public class CartService: ObservableObject {
         self.items = []
         persistenceService.saveCartItems(self.items)
         
-        // Setup initial Group Cart demo
+        // Setup initial empty Group Cart
         self.groupCart = GroupCart(
             title: "House Party Groceries 🥳",
             participants: MockData.allUsers,
@@ -121,6 +121,12 @@ public class CartService: ObservableObject {
         if var g = groupCart {
             g.items = items
             self.groupCart = g
+        }
+        
+        if items.isEmpty {
+            LiveActivityManager.shared.stopCartActivity()
+        } else {
+            LiveActivityManager.shared.updateCartActivity(itemCount: totalItemCount, totalAmount: grandTotal)
         }
     }
 }
