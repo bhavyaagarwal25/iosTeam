@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 import Combine
-import UserNotifications
+@preconcurrency import UserNotifications
 
 @MainActor
 public class ProfileViewModel: ObservableObject {

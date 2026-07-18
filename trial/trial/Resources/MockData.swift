@@ -79,7 +79,7 @@ public enum MockData {
             price: 50.0,
             discountPrice: 45.0,
             unit: "400 g",
-            systemImage: "square.split.3x3.fill",
+            systemImage: "square.grid.3x3.fill",
             rating: 4.7,
             deliveryTime: "9 mins",
             description: "Soft and nutritious 100% whole wheat bread packed with fiber.",
