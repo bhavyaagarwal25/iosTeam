@@ -23,12 +23,19 @@ public struct ZomatoHomeView: View {
                         // Header section based on tab
                         if viewModel.selectedBottomTab == .under250 {
                             blueHeaderSection
+                        } else if viewModel.selectedBottomTab == .dining {
+                            purpleHeaderSection
                         } else {
                             redHeaderSection
                         }
                         
                         // White content
-                        VStack(spacing: 20) {
+                        if viewModel.selectedBottomTab == .dining {
+                            diningWhiteContent
+                                .padding(.top, 16)
+                                .background(Color(uiColor: .systemBackground))
+                        } else {
+                            VStack(spacing: 20) {
                             categoriesView
                             quickFiltersView
                             
@@ -70,6 +77,7 @@ public struct ZomatoHomeView: View {
                         }
                         .padding(.top, 16)
                         .background(Color(uiColor: .systemBackground))
+                        }
                     }
                 }
                 .ignoresSafeArea(edges: .top)
@@ -181,6 +189,136 @@ public struct ZomatoHomeView: View {
                 .padding(.bottom, 20)
             }
         }
+    }
+    
+    // MARK: - Purple Header (Dining)
+    private var purpleHeaderSection: some View {
+        ZStack(alignment: .bottom) {
+            LinearGradient(
+                colors: [Color(red: 0.92, green: 0.85, blue: 1.0), Color(red: 0.85, green: 0.7, blue: 1.0)],
+                startPoint: .top, endPoint: .bottom
+            )
+            .ignoresSafeArea(edges: .top)
+            .frame(height: 380)
+            
+            VStack(spacing: 12) {
+                diningHeaderBar
+                diningSearchBar
+                
+                // Welcome Treat Banner
+                VStack(spacing: 0) {
+                    Text("WELCOME TREAT FOR YOU")
+                        .font(.system(size: 9, weight: .bold))
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 10)
+                        .background(Color.white)
+                        .clipShape(Capsule())
+                        .zIndex(1)
+                        .offset(y: 8)
+                    
+                    VStack(spacing: 2) {
+                        Text("FLAT")
+                        Text("₹250 OFF")
+                            .font(.system(size: 26, weight: .black))
+                        Image(systemName: "plus")
+                        Text("EXTRA 20%")
+                            .font(.system(size: 20, weight: .black))
+                        Text("CASHBACK")
+                            .font(.system(size: 20, weight: .black))
+                        Text("+ as DineCoins +")
+                            .font(.system(size: 8))
+                    }
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(Color(red: 0.2, green: 0.1, blue: 0.5))
+                    .padding(.top, 16)
+                    .padding(.bottom, 12)
+                    .padding(.horizontal, 40)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(style: StrokeStyle(lineWidth: 2, dash: [6]))
+                            .foregroundColor(Color.purple.opacity(0.3))
+                            .padding(4)
+                    )
+                    
+                    Button(action: {}) {
+                        HStack(spacing: 4) {
+                            Text("Explore now").font(.system(size: 12, weight: .bold))
+                            Image(systemName: "chevron.right").font(.system(size: 10, weight: .bold))
+                        }
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 16).padding(.vertical, 8)
+                        .background(Color.white).clipShape(Capsule())
+                        .shadow(radius: 2)
+                    }
+                    .offset(y: -14)
+                }
+                .padding(.top, 10)
+                .padding(.bottom, 20)
+            }
+        }
+    }
+    
+    private var diningHeaderBar: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 4) {
+                    Image(systemName: "location.fill")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.red)
+                    Text("Home").font(.system(size: 20, weight: .bold))
+                    Image(systemName: "chevron.down").font(.system(size: 12, weight: .bold))
+                }
+                .foregroundColor(.black)
+                Text("Panchayti mandir, Subh...")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.black.opacity(0.7))
+                    .padding(.leading, 20)
+            }
+            
+            Spacer()
+            
+            HStack(spacing: 10) {
+                Button(action: {}) {
+                    Text("district")
+                        .font(.system(size: 14, weight: .black, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 10).padding(.vertical, 6)
+                        .background(Color(red: 0.4, green: 0.2, blue: 0.8))
+                        .clipShape(Capsule())
+                }
+                
+                Button(action: {}) {
+                    Circle().fill(Color.white.opacity(0.6)).frame(width: 36, height: 36)
+                        .overlay(Image(systemName: "bell.fill").foregroundColor(Color(red: 0.4, green: 0.2, blue: 0.8)).font(.system(size: 15)))
+                }
+                
+                Button(action: { showProfile = true }) {
+                    Circle().fill(Color.white.opacity(0.6)).frame(width: 36, height: 36)
+                        .overlay(Text("S").font(.system(size: 16, weight: .bold)).foregroundColor(Color(red: 0.3, green: 0.5, blue: 0.9)))
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 54)
+    }
+    
+    private var diningSearchBar: some View {
+        HStack(spacing: 12) {
+            Button(action: { showSearch = true }) {
+                HStack {
+                    Image(systemName: "magnifyingglass").foregroundColor(.black).font(.system(size: 18, weight: .semibold))
+                    Text("Search restaurants").font(.system(size: 16)).foregroundColor(.gray)
+                    Spacer()
+                    Image(systemName: "mic").foregroundColor(.black).font(.system(size: 18))
+                }
+                .padding(.horizontal, 14).padding(.vertical, 12)
+                .background(Color.white).cornerRadius(14)
+                .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 2)
+            }
+        }
+        .padding(.horizontal, 16)
     }
     
     // MARK: - Header Bar
@@ -806,6 +944,103 @@ public struct ZomatoHomeView: View {
         }
         .padding().background(Color(uiColor: .systemBackground)).cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+    }
+}
+
+// MARK: - Dining Content
+extension ZomatoHomeView {
+    private var diningWhiteContent: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            // Dining Quick Filters
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    Button(action: {}) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "slider.horizontal.3")
+                            Text("Filters")
+                            Image(systemName: "chevron.down")
+                        }
+                        .font(.system(size: 13, weight: .medium))
+                        .padding(.horizontal, 12).padding(.vertical, 8)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.3), lineWidth: 1))
+                    }
+                    .foregroundColor(.black)
+                    
+                    Button(action: {}) {
+                        HStack(spacing: 4) {
+                            Text("Date, time & guests")
+                            Image(systemName: "chevron.down")
+                        }
+                        .font(.system(size: 13, weight: .medium))
+                        .padding(.horizontal, 12).padding(.vertical, 8)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.3), lineWidth: 1))
+                    }
+                    .foregroundColor(.black)
+                    
+                    Button(action: {}) {
+                        Text("30% OFF & more")
+                        .font(.system(size: 13, weight: .medium))
+                        .padding(.horizontal, 12).padding(.vertical, 8)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.3), lineWidth: 1))
+                    }
+                    .foregroundColor(.black)
+                }
+                .padding(.horizontal, 16)
+            }
+            
+            Text("Grab the offer")
+                .font(.system(size: 20, weight: .bold))
+                .padding(.horizontal, 16)
+                .padding(.top, 10)
+            
+            // Offer Card
+            HStack(spacing: 0) {
+                Rectangle()
+                    .fill(Color.orange)
+                    .frame(width: 140, height: 160)
+                    .overlay(Text("SOCIAL").font(.system(size: 20, weight: .black, design: .rounded)).foregroundColor(.white).rotationEffect(.degrees(-10)))
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("S[#]CIAL")
+                        .font(.system(size: 20, weight: .black))
+                    Text("Flat ₹500 OFF")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(Color(red: 0.7, green: 0.3, blue: 0.1))
+                    Text("Above a bill value of ₹1500")
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
+                    
+                    Button(action: {}) {
+                        Text("Explore now")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 16).padding(.vertical, 8)
+                            .background(Color.white)
+                            .clipShape(Capsule())
+                            .overlay(Capsule().stroke(Color.gray.opacity(0.2)))
+                    }
+                    .padding(.top, 10)
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(white: 0.95))
+            }
+            .cornerRadius(16)
+            .padding(.horizontal, 16)
+            
+            Text("What's the mood?")
+                .font(.system(size: 20, weight: .bold))
+                .padding(.horizontal, 16)
+                .padding(.top, 10)
+                
+            Spacer().frame(height: 100)
+        }
     }
 }
 
