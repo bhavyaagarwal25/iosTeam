@@ -6,8 +6,37 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		425AC3909ED06A88D78738B2 /* OrderLiveActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3CECB44C06D36132977EB6 /* OrderLiveActivityWidget.swift */; };
+		7FAF549EEB07AD2F8D3AE619 /* trialWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B236B62864DC8EED2DA8D02 /* trialWidgetBundle.swift */; };
+		8B5E85EB8A404400E7F0042E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17CE086A7B7D015C756AB97F /* Foundation.framework */; };
+		9BB58FEB37F3AB6B3A9F74CA /* trialWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DA1B2830303EF00EC7AA86F7 /* trialWidgetExtension.appex */; };
+		A48EB6B8B6D1A58E008CD219 /* BlinkitTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B2E68ABF9E89B78B38E862 /* BlinkitTheme.swift */; };
+		BB8E818AEE746B74814E2927 /* BlinkitActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2537D1A368797F362FC8E7 /* BlinkitActivityAttributes.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		157FD9648F47D13844938337 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9BB58FEB37F3AB6B3A9F74CA /* trialWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		108186C0300BB34700CED4A3 /* trial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = trial.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		17CE086A7B7D015C756AB97F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		35B2E68ABF9E89B78B38E862 /* BlinkitTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BlinkitTheme.swift; path = trial/Resources/BlinkitTheme.swift; sourceTree = "<group>"; };
+		3F3CECB44C06D36132977EB6 /* OrderLiveActivityWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OrderLiveActivityWidget.swift; path = trial/LiveActivity/OrderLiveActivityWidget.swift; sourceTree = "<group>"; };
+		4B236B62864DC8EED2DA8D02 /* trialWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = trialWidgetBundle.swift; path = trialWidgetExtension/trialWidgetBundle.swift; sourceTree = "<group>"; };
+		AB2537D1A368797F362FC8E7 /* BlinkitActivityAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BlinkitActivityAttributes.swift; path = trial/LiveActivity/BlinkitActivityAttributes.swift; sourceTree = "<group>"; };
+		DA1B2830303EF00EC7AA86F7 /* trialWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = trialWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -26,6 +55,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6E469035ED6E51D89FCF43C7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B5E85EB8A404400E7F0042E /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -34,6 +71,11 @@
 			children = (
 				108186C2300BB34700CED4A3 /* trial */,
 				108186C1300BB34700CED4A3 /* Products */,
+				F43D26EF332C8B4F2E670FFC /* Frameworks */,
+				4B236B62864DC8EED2DA8D02 /* trialWidgetBundle.swift */,
+				AB2537D1A368797F362FC8E7 /* BlinkitActivityAttributes.swift */,
+				3F3CECB44C06D36132977EB6 /* OrderLiveActivityWidget.swift */,
+				35B2E68ABF9E89B78B38E862 /* BlinkitTheme.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -41,8 +83,25 @@
 			isa = PBXGroup;
 			children = (
 				108186C0300BB34700CED4A3 /* trial.app */,
+				DA1B2830303EF00EC7AA86F7 /* trialWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F43D26EF332C8B4F2E670FFC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F50D58FAF87A25E23A286D9D /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F50D58FAF87A25E23A286D9D /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				17CE086A7B7D015C756AB97F /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,6 +114,7 @@
 				108186BC300BB34700CED4A3 /* Sources */,
 				108186BD300BB34700CED4A3 /* Frameworks */,
 				108186BE300BB34700CED4A3 /* Resources */,
+				157FD9648F47D13844938337 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -64,11 +124,26 @@
 				108186C2300BB34700CED4A3 /* trial */,
 			);
 			name = trial;
-			packageProductDependencies = (
-			);
 			productName = trial;
 			productReference = 108186C0300BB34700CED4A3 /* trial.app */;
 			productType = "com.apple.product-type.application";
+		};
+		BC5E805E6C10D459A33E07BB /* trialWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1D4E5EF2339A17DDF2053D59 /* Build configuration list for PBXNativeTarget "trialWidgetExtension" */;
+			buildPhases = (
+				41C68EE8D1676B82FEF831DB /* Sources */,
+				6E469035ED6E51D89FCF43C7 /* Frameworks */,
+				D410F5E3283E343D8136FAD8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = trialWidgetExtension;
+			productName = trialWidgetExtension;
+			productReference = DA1B2830303EF00EC7AA86F7 /* trialWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -100,12 +175,20 @@
 			projectRoot = "";
 			targets = (
 				108186BF300BB34700CED4A3 /* trial */,
+				BC5E805E6C10D459A33E07BB /* trialWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		108186BE300BB34700CED4A3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D410F5E3283E343D8136FAD8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -119,6 +202,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41C68EE8D1676B82FEF831DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7FAF549EEB07AD2F8D3AE619 /* trialWidgetBundle.swift in Sources */,
+				BB8E818AEE746B74814E2927 /* BlinkitActivityAttributes.swift in Sources */,
+				425AC3909ED06A88D78738B2 /* OrderLiveActivityWidget.swift in Sources */,
+				A48EB6B8B6D1A58E008CD219 /* BlinkitTheme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,7 +345,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9BQV3SB9Z8;
+				DEVELOPMENT_TEAM = 229LDLFY2Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
@@ -267,7 +361,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.app.zomatoblinkit;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bhavy1a.trial;
+
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -286,7 +381,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9BQV3SB9Z8;
+				DEVELOPMENT_TEAM = 229LDLFY2Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
@@ -302,7 +397,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.app.zomatoblinkit;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bhavy1a.trial;
+
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -313,6 +409,39 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
+		};
+		755E2A8FE231147B3021FCC4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				DEVELOPMENT_TEAM = 229LDLFY2Y;
+				INFOPLIST_FILE = trialWidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bhavy1a.trial.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		DA8C25A21CCDB9038E7E3024 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				DEVELOPMENT_TEAM = 229LDLFY2Y;
+				INFOPLIST_FILE = trialWidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bhavy1a.trial.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
@@ -331,6 +460,15 @@
 			buildConfigurations = (
 				108186CC300BB34800CED4A3 /* Debug */,
 				108186CD300BB34800CED4A3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1D4E5EF2339A17DDF2053D59 /* Build configuration list for PBXNativeTarget "trialWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				755E2A8FE231147B3021FCC4 /* Release */,
+				DA8C25A21CCDB9038E7E3024 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

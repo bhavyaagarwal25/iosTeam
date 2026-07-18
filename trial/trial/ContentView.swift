@@ -27,7 +27,7 @@ public struct ContentView: View {
                     Group {
                         switch selectedTab {
                         case 0: HomeView()
-                        case 1: SearchView()
+                        case 1: CategoryView() // Previously SearchView, but they added CategoryView! Let's keep it Search for now unless we rename the tab
                         case 2: CartView()
                         case 3: OrderTrackingView()
                         case 4: ProfileView()
@@ -48,6 +48,17 @@ public struct ContentView: View {
             appSwitcherButton
                 .padding(.trailing, 16)
                 .padding(.bottom, 90)
+        }
+        .onAppear {
+            // Nuke ALL stale persisted data on every launch — ensures clean state for demo
+            let keysToWipe = [
+                "blinkit_mock_iot_telemetry_v2",
+                "blinkit_home_inventory_v1",
+                "blinkit_cart_items_v1",
+                "blinkit_last_scan_snapshot_v1",
+                "blinkit_last_order_v1"
+            ]
+            keysToWipe.forEach { UserDefaults.standard.removeObject(forKey: $0) }
         }
         .onOpenURL { url in
             if url.host == "reorder" {
@@ -99,7 +110,7 @@ struct CustomBlinkitTabBar: View {
     
     let tabs: [(title: String, icon: String)] = [
         ("Home", "house.fill"),
-        ("Search", "magnifyingglass"),
+        ("Categories", "square.grid.2x2.fill"),
         ("Cart", "cart.fill"),
         ("Track", "bolt.car.fill"),
         ("Profile", "person.fill")

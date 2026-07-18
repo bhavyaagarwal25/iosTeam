@@ -57,8 +57,16 @@ public struct AddProductIntent: AppIntent {
         
         let query = item.rawValue.lowercased()
         
-        if let match = products.first(where: { $0.name.lowercased().contains(query) }) {
+        let match = products.first(where: { $0.name.lowercased().contains(query) })
+        if let match = match {
             cart.addToCart(product: match, quantity: 1, user: MockData.currentUser)
+        }
+        
+        if await UIApplication.shared.applicationState != .active && cart.totalItemCount > 0 {
+            LiveActivityManager.shared.startCartActivity(itemCount: cart.totalItemCount, totalAmount: cart.grandTotal)
+        }
+        
+        if let match = match {
             return .result(dialog: "Added \(match.name) to your cart!")
         } else {
             return .result(dialog: "Added \(item.rawValue) to your cart!")
@@ -78,6 +86,9 @@ public struct ReorderIntent: AppIntent {
         let cart = CartService.shared
         if let savedList = MockData.savedLists.first {
             cart.addSavedListToCart(savedList)
+            if await UIApplication.shared.applicationState != .active && cart.totalItemCount > 0 {
+                LiveActivityManager.shared.startCartActivity(itemCount: cart.totalItemCount, totalAmount: cart.grandTotal)
+            }
             return .result(dialog: "Added \(savedList.title) to your Blinkit cart!")
         } else {
             return .result(dialog: "Cart updated with your usual grocery items.")

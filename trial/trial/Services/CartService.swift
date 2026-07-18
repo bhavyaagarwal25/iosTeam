@@ -2,6 +2,8 @@
 //  CartService.swift
 //  BlinkitFlow
 //
+//  Manages the active shopping cart state with local persistence and group cart synchronization.
+//
 
 import Foundation
 import UIKit
@@ -14,6 +16,8 @@ public class CartService: ObservableObject {
     @Published public private(set) var items: [CartItem] = []
     @Published public private(set) var groupCart: GroupCart? = nil
     @Published public var isGroupModeEnabled: Bool = false
+    
+    private let persistenceService: PersistenceServiceProtocol
     
     // Billing breakdown
     public var itemTotal: Double {
@@ -45,18 +49,18 @@ public class CartService: ObservableObject {
         items.reduce(0) { $0 + $1.quantity }
     }
     
-    public init() {
-        // Pre-populate demo items
-        let initialProducts = MockData.sampleProducts
-        let item1 = CartItem(product: initialProducts[0], quantity: 2, addedBy: MockData.currentUser)
-        let item2 = CartItem(product: initialProducts[10], quantity: 1, addedBy: MockData.userPriya)
-        self.items = [item1, item2]
+    public init(persistenceService: PersistenceServiceProtocol = PersistenceService.shared) {
+        self.persistenceService = persistenceService
         
-        // Setup initial Group Cart demo
+        // Always start with empty cart (hackathon demo — prevent stale items from polluting the cart)
+        self.items = []
+        persistenceService.saveCartItems(self.items)
+        
+        // Setup initial empty Group Cart
         self.groupCart = GroupCart(
             title: "House Party Groceries 🥳",
             participants: MockData.allUsers,
-            items: [item1, item2]
+            items: self.items
         )
     }
     
@@ -67,7 +71,7 @@ public class CartService: ObservableObject {
             let newItem = CartItem(product: product, quantity: quantity, addedBy: user)
             items.append(newItem)
         }
-        syncGroupCart()
+        saveAndSync()
         BlinkitTheme.triggerHaptic(.light)
     }
     
@@ -78,13 +82,13 @@ public class CartService: ObservableObject {
         } else {
             items[index].quantity = quantity
         }
-        syncGroupCart()
+        saveAndSync()
         BlinkitTheme.triggerHaptic(.light)
     }
     
     public func removeFromCart(itemId: String) {
         items.removeAll(where: { $0.id == itemId })
-        syncGroupCart()
+        saveAndSync()
         BlinkitTheme.triggerHaptic(.medium)
     }
     
@@ -97,7 +101,7 @@ public class CartService: ObservableObject {
     
     public func clearCart() {
         items.removeAll()
-        syncGroupCart()
+        saveAndSync()
     }
     
     // DEMO: Group Cart live teammate simulation
@@ -108,10 +112,21 @@ public class CartService: ObservableObject {
         BlinkitTheme.triggerNotificationHaptic(.success)
     }
     
+    private func saveAndSync() {
+        persistenceService.saveCartItems(items)
+        syncGroupCart()
+    }
+    
     private func syncGroupCart() {
         if var g = groupCart {
             g.items = items
             self.groupCart = g
+        }
+        
+        if items.isEmpty {
+            LiveActivityManager.shared.stopCartActivity()
+        } else {
+            LiveActivityManager.shared.updateCartActivity(itemCount: totalItemCount, totalAmount: grandTotal)
         }
     }
 }

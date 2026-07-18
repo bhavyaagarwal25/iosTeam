@@ -15,7 +15,7 @@ public class OrderService: ObservableObject {
     @Published public var activeOrder: Order? = nil
     @Published public var pastOrders: [Order] = MockData.mockPastOrders
     
-    private var currentActivity: Activity<OrderActivityAttributes>? = nil
+    private var currentActivity: Activity<BlinkitActivityAttributes>? = nil
     private var stageTimer: Timer?
     
     public init() {}
@@ -36,6 +36,15 @@ public class OrderService: ObservableObject {
         
         self.activeOrder = newOrder
         self.pastOrders.insert(newOrder, at: 0)
+        
+        // 1. Restock Home Inventory with mock ordered quantities (e.g. Milk=2, Eggs=12, Butter=1)
+        InventoryManager.shared.restockOrderedItems(orderedItems: items)
+        
+        // 2. Clear Cart post-order
+        CartService.shared.clearCart()
+        
+        // 3. Persist Last Order locally
+        PersistenceService.shared.saveLastOrder(newOrder)
         
         // Request real ActivityKit Live Activity for Dynamic Island
         startLiveActivity(for: newOrder)
@@ -71,6 +80,24 @@ public class OrderService: ObservableObject {
             order.estimatedDeliveryMinutes = 0
             stageTimer?.invalidate()
             stageTimer = nil
+            self.activeOrder = order
+            
+            // Update past orders list matching ID
+            if let idx = pastOrders.firstIndex(where: { $0.id == order.id }) {
+                pastOrders[idx] = order
+            }
+            
+            // Update ActivityKit Dynamic Island state
+            updateLiveActivity(for: order)
+            
+            BlinkitTheme.triggerHaptic(.medium)
+            
+            // After delivery, clear activeOrder after 4 seconds so cart shows empty
+            Task {
+                try? await Task.sleep(nanoseconds: 4_000_000_000)
+                self.activeOrder = nil
+            }
+            return  // Skip the duplicate update at the bottom
         case .delivered:
             break
         }
@@ -96,8 +123,8 @@ public class OrderService: ObservableObject {
             return
         }
         
-        let attributes = OrderActivityAttributes(orderId: order.id, itemCount: order.items.count)
-        let initialState = OrderActivityAttributes.ContentState(
+        let attributes = BlinkitActivityAttributes(activityId: order.id, deliveryAddress: order.deliveryAddress)
+        let initialState = BlinkitActivityAttributes.ContentState(
             stageName: order.stage.rawValue,
             etaMinutes: order.estimatedDeliveryMinutes,
             riderName: order.riderName,
@@ -120,7 +147,7 @@ public class OrderService: ObservableObject {
     
     private func updateLiveActivity(for order: Order) {
         guard let activity = currentActivity else { return }
-        let updatedState = OrderActivityAttributes.ContentState(
+        let updatedState = BlinkitActivityAttributes.ContentState(
             stageName: order.stage.rawValue,
             etaMinutes: order.estimatedDeliveryMinutes,
             riderName: order.riderName,
@@ -140,7 +167,7 @@ public class OrderService: ObservableObject {
     
     private func startOrderStageSimulation() {
         stageTimer?.invalidate()
-        stageTimer = Timer.scheduledTimer(withTimeInterval: 6.0, repeats: true) { [weak self] _ in
+        stageTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self = self, let current = self.activeOrder else { return }
                 if current.stage != .delivered {

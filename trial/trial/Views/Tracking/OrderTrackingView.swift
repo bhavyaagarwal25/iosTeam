@@ -9,6 +9,7 @@ import MapKit
 @MainActor
 public struct OrderTrackingView: View {
     @StateObject private var viewModel: OrderTrackingViewModel
+    @State private var selectedPlayerForGame: NearbyPlayer? = nil
     
     // Map region centered on Koramangala Bengaluru
     @State private var position = MapCameraPosition.region(
@@ -27,63 +28,80 @@ public struct OrderTrackingView: View {
     }
     
     public var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 16) {
+        ZStack(alignment: .top) {
+            // Full Screen Map
+            mapVisualizerCard
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack {
                 if let order = viewModel.activeOrder {
-                    // ETA Header Banner
+                    // ETA Header Banner at the top
                     etaHeaderCard(order: order)
+                        .padding(.top, 16)
                     
-                    // Map visualizer preview
-                    mapVisualizerCard
+                    Spacer()
                     
-                    // Stage Progression Stepper
-                    stageProgressCard(order: order)
-                    
-                    // Rider Detail Card
+                    // Rider Detail Card at the bottom
                     riderDetailCard(order: order)
-                    
-                    // Demo Manual Stage Advance Button
-                    manualAdvanceButton
+                        .padding(.bottom, 16)
                 } else {
+                    Spacer()
                     noActiveOrderView
+                        .background(Color(uiColor: .systemBackground).opacity(0.9))
+                        .cornerRadius(16)
+                        .padding(16)
+                    Spacer()
                 }
             }
-            .padding(.top, 12)
-            .padding(.bottom, 24)
         }
         .navigationTitle("Track Live Order")
         .navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(item: $selectedPlayerForGame) { player in
+            HandCricketView(opponentName: player.name) {
+                selectedPlayerForGame = nil
+            }
+        }
     }
     
     private func etaHeaderCard(order: Order) -> some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 8) {
             HStack {
                 Text(order.stage == .delivered ? "ORDER DELIVERED 🎉" : "ARRIVING IN \(order.estimatedDeliveryMinutes) MINS")
-                    .font(.system(size: 11, weight: .black))
+                    .font(.system(size: 13, weight: .black))
                     .foregroundColor(order.stage == .delivered ? .white : BlinkitTheme.textPrimaryLight)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
                     .background(order.stage == .delivered ? BlinkitTheme.brandGreen : BlinkitTheme.yellow)
-                    .cornerRadius(6)
+                    .clipShape(Capsule())
                 Spacer()
                 Text("ID: \(order.id)")
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.system(size: 13, weight: .bold))
                     .foregroundColor(.secondary)
             }
             
-            ProgressView(value: order.stage.progressValue)
-                .accentColor(BlinkitTheme.brandGreen)
-                .scaleEffect(x: 1, y: 2.5, anchor: .center)
-                .padding(.vertical, 8)
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: 8)
+                    Capsule()
+                        .fill(BlinkitTheme.brandGreen)
+                        .frame(width: max(0, geometry.size.width * CGFloat(order.stage.progressValue)), height: 8)
+                }
+            }
+            .frame(height: 8)
+            .padding(.vertical, 6)
             
             Text("Order placed at \(order.orderDate.formatted(date: .omitted, time: .shortened))")
-                .font(.system(size: 12))
+                .font(.system(size: 14))
                 .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(16)
-        .background(Color(uiColor: .secondarySystemBackground))
-        .cornerRadius(16)
+        .background(.ultraThinMaterial)
+        .background(Color.white.opacity(0.8))
+        .cornerRadius(20)
+        .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 6)
         .padding(.horizontal, 16)
     }
     
@@ -96,9 +114,34 @@ public struct OrderTrackingView: View {
                     .tint(BlinkitTheme.brandGreen)
                 Marker("Delivery Address", coordinate: CLLocationCoordinate2D(latitude: 12.9340, longitude: 77.6235))
                     .tint(.red)
+                
+                ForEach(viewModel.nearbyPlayers) { player in
+                    Annotation(player.name, coordinate: player.coordinate) {
+                        Button(action: {
+                            selectedPlayerForGame = player
+                        }) {
+                            VStack(spacing: 4) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.blue)
+                                        .frame(width: 32, height: 32)
+                                        .shadow(radius: 2)
+                                    Image(systemName: "figure.cricket")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 16))
+                                }
+                                Text("Play")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.white)
+                                    .cornerRadius(8)
+                                    .shadow(radius: 1)
+                            }
+                        }
+                    }
+                }
             }
-            .frame(height: 180)
-            .cornerRadius(16)
             
             HStack(spacing: 4) {
                 Circle()
@@ -112,9 +155,9 @@ public struct OrderTrackingView: View {
             .padding(.vertical, 4)
             .background(Color.black.opacity(0.7))
             .cornerRadius(6)
-            .padding(10)
+            .padding(.top, 140) // Move below the header
+            .padding(.trailing, 16)
         }
-        .padding(.horizontal, 16)
     }
     
     private func stageProgressCard(order: Order) -> some View {
@@ -168,21 +211,21 @@ public struct OrderTrackingView: View {
     }
     
     private func riderDetailCard(order: Order) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             ZStack {
                 Circle()
-                    .fill(BlinkitTheme.brandGreenLight)
-                    .frame(width: 44, height: 44)
+                    .fill(Color.green.opacity(0.1))
+                    .frame(width: 50, height: 50)
                 Image(systemName: "person.crop.circle.fill.badge.checkmark")
                     .foregroundColor(BlinkitTheme.brandGreen)
-                    .font(.system(size: 24))
+                    .font(.system(size: 26))
             }
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(order.riderName)
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                 Text("Assigned Store Rider • 4.9 ★")
-                    .font(.system(size: 12))
+                    .font(.system(size: 13))
                     .foregroundColor(.secondary)
             }
             
@@ -191,21 +234,24 @@ public struct OrderTrackingView: View {
             Button(action: {
                 BlinkitTheme.triggerHaptic(.medium)
             }) {
-                HStack(spacing: 4) {
+                HStack(spacing: 6) {
                     Image(systemName: "phone.fill")
+                        .font(.system(size: 14, weight: .bold))
                     Text("Call")
+                        .font(.system(size: 14, weight: .bold))
                 }
-                .font(.system(size: 12, weight: .bold))
                 .foregroundColor(.white)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
                 .background(BlinkitTheme.brandGreen)
-                .cornerRadius(10)
+                .clipShape(Capsule())
             }
         }
-        .padding(14)
-        .background(Color(uiColor: .secondarySystemBackground))
-        .cornerRadius(16)
+        .padding(16)
+        .background(.ultraThinMaterial)
+        .background(Color.white.opacity(0.8))
+        .cornerRadius(24)
+        .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 6)
         .padding(.horizontal, 16)
     }
     
