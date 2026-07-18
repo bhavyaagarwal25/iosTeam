@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 @MainActor
 public struct SmartFridgeScannerView: View {
@@ -29,28 +30,30 @@ public struct SmartFridgeScannerView: View {
     
     public var body: some View {
         NavigationStack {
-            ZStack {
-                Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
+            List {
+                Section(header: Text("IoT Device Status")) {
+                    iotHeaderRow
+                }
                 
-                VStack(spacing: 16) {
-                    // IoT Status Header
-                    iotHeaderCard
-                    
-                    // Smart Fridge Viewport using User's Uploaded Fridge Photo
-                    fridgePhotoViewportCard
-                    
-                    // Action Scan Button
+                Section(header: Text("Smart Scanner")) {
+                    fridgePhotoViewportRow
+                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                
+                Section {
                     scanActionButton
-                    
-                    // Detected Items List & Auto Cart Status
-                    if scanCompleted, let snapshot = detectedFridgeSnapshot {
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+                
+                if scanCompleted, let snapshot = detectedFridgeSnapshot {
+                    Section(header: Text("Scan Results"), footer: Text(autoCartMessage ?? "")) {
                         detectedFridgeItemsList(snapshot: snapshot)
                     }
-                    
-                    Spacer()
                 }
-                .padding(.top, 12)
             }
+            .listStyle(.insetGrouped)
             .navigationTitle("Smart Fridge IoT AI")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -67,7 +70,7 @@ public struct SmartFridgeScannerView: View {
     
     // MARK: - Subviews
     
-    private var iotHeaderCard: some View {
+    private var iotHeaderRow: some View {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
@@ -94,22 +97,16 @@ public struct SmartFridgeScannerView: View {
                     .font(.system(size: 12))
                     .foregroundColor(.secondary)
             }
-            
-            Spacer()
         }
-        .padding(14)
-        .background(Color(uiColor: .secondarySystemBackground))
-        .cornerRadius(16)
-        .padding(.horizontal, 16)
+        .padding(.vertical, 4)
     }
     
-    private var fridgePhotoViewportCard: some View {
+    private var fridgePhotoViewportRow: some View {
         ZStack {
             // Refrigerator Image Container (User Uploaded Photo Asset)
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.black.opacity(0.85))
                 .frame(height: 330)
-                .padding(.horizontal, 16)
             
             Image("fridge_interior")
                 .resizable()
@@ -120,7 +117,6 @@ public struct SmartFridgeScannerView: View {
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(Color.blue.opacity(0.5), lineWidth: 2)
                 )
-                .padding(.horizontal, 20)
             
             // Floating Dynamic Item Badges Overlay
             VStack(spacing: 16) {
@@ -150,7 +146,6 @@ public struct SmartFridgeScannerView: View {
                     .frame(height: 8)
                     .shadow(color: Color.blue, radius: 12)
                     .offset(y: laserOffset)
-                    .padding(.horizontal, 24)
             }
             
             // Scanning Progress & Live Item Detection List Overlay
@@ -248,83 +243,92 @@ public struct SmartFridgeScannerView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
             .background(isScanning ? Color.gray : Color.blue)
-            .cornerRadius(16)
-            .shadow(color: Color.blue.opacity(0.3), radius: 8, x: 0, y: 4)
-            .padding(.horizontal, 16)
+            .cornerRadius(12)
         }
         .disabled(isScanning)
     }
     
-    private func detectedFridgeItemsList(snapshot: InventorySnapshot) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if detectedLowItems.isEmpty {
-                // ✅ Everything is stocked!
-                VStack(spacing: 12) {
-                    Image(systemName: "checkmark.seal.fill")
-                        .font(.system(size: 42))
-                        .foregroundColor(BlinkitTheme.brandGreen)
-                    
-                    Text("Fridge is Fully Stocked! 🎉")
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundColor(.primary)
-                    
-                    Text("All your items are at healthy levels.\nNo restocking needed right now.")
-                        .font(.system(size: 13))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                    
-                    // Show all stocked items in a compact grid
-                    let stockedItems = inventoryManager.items.filter { item in
-                        snapshot.itemQuantities.keys.contains(item.name.lowercased())
-                    }
-                    
-                    if !stockedItems.isEmpty {
-                        VStack(spacing: 4) {
-                            ForEach(stockedItems) { item in
-                                HStack {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(BlinkitTheme.brandGreen)
-                                        .font(.system(size: 12))
-                                    Text(item.name.capitalized)
-                                        .font(.system(size: 13, weight: .medium))
-                                    Spacer()
-                                    Text("Qty: \(item.currentQuantity)")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .padding(.top, 4)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-            } else {
-                // Items were added to cart
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(BlinkitTheme.brandGreen)
-                    Text("Fridge IoT Scan Complete!")
-                        .font(.system(size: 15, weight: .bold))
-                    Spacer()
-                }
-                
-                if let msg = autoCartMessage {
-                    Text(msg)
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(BlinkitTheme.brandGreen)
-                        .padding(.vertical, 2)
-                }
+    @ViewBuilder
+    private func productImage(for name: String) -> some View {
+        let assetName = "\(name.lowercased())_product"
+        if UIImage(named: assetName) != nil {
+            Image(assetName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 40, height: 40)
+                .cornerRadius(8)
+        } else {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(uiColor: .systemGray5))
+                    .frame(width: 40, height: 40)
+                Image(systemName: "cube.box.fill")
+                    .foregroundColor(.gray)
             }
         }
-        .padding(14)
-        .background(Color(uiColor: .systemBackground))
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(BlinkitTheme.brandGreen.opacity(0.3), lineWidth: 1)
-        )
-        .padding(.horizontal, 16)
+    }
+    
+    @ViewBuilder
+    private func detectedFridgeItemsList(snapshot: InventorySnapshot) -> some View {
+        if detectedLowItems.isEmpty {
+            // ✅ Everything is stocked!
+            VStack(spacing: 12) {
+                Image(systemName: "checkmark.seal.fill")
+                    .font(.system(size: 42))
+                    .foregroundColor(BlinkitTheme.brandGreen)
+                
+                Text("Fridge is Fully Stocked! 🎉")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundColor(.primary)
+                
+                Text("All your items are at healthy levels.\nNo restocking needed right now.")
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            
+            // Show all stocked items with actual images in native list rows
+            let stockedItems = inventoryManager.items.filter { item in
+                snapshot.itemQuantities.keys.contains(item.name.lowercased())
+            }
+            
+            ForEach(stockedItems) { item in
+                HStack(spacing: 12) {
+                    productImage(for: item.name)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(item.name.capitalized)
+                            .font(.system(size: 16, weight: .medium))
+                        Text("Healthy Level")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text("Qty: \(item.currentQuantity)")
+                            .font(.system(size: 14, weight: .bold))
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(BlinkitTheme.brandGreen)
+                            .font(.system(size: 14))
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+        } else {
+            // Items were added to cart
+            HStack {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(BlinkitTheme.brandGreen)
+                Text("Fridge IoT Scan Complete!")
+                    .font(.system(size: 15, weight: .bold))
+                Spacer()
+            }
+            .padding(.vertical, 8)
+        }
     }
     
     // MARK: - Scan Execution & Auto Cart Redirection
