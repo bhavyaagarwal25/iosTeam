@@ -20,8 +20,12 @@ public struct ZomatoHomeView: View {
             ZStack(alignment: .bottom) {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
-                        // Red header with banner
-                        redHeaderSection
+                        // Header section based on tab
+                        if viewModel.selectedBottomTab == .under250 {
+                            blueHeaderSection
+                        } else {
+                            redHeaderSection
+                        }
                         
                         // White content
                         VStack(spacing: 20) {
@@ -127,7 +131,7 @@ public struct ZomatoHomeView: View {
             .clipped()
             
             VStack(spacing: 12) {
-                headerBar
+                headerBar()
                 searchBar
                 bannerContent
                 bannerDots
@@ -135,8 +139,52 @@ public struct ZomatoHomeView: View {
         }
     }
     
+    // MARK: - Blue Header
+    private var blueHeaderSection: some View {
+        ZStack(alignment: .bottom) {
+            // Blue Striped background
+            GeometryReader { geo in
+                HStack(spacing: 4) {
+                    ForEach(0..<Int(geo.size.width / 8), id: \.self) { _ in
+                        Rectangle().fill(Color.white.opacity(0.2)).frame(width: 4)
+                    }
+                }
+            }
+            .background(LinearGradient(colors: [Color(red: 0.65, green: 0.85, blue: 1.0), Color(red: 0.85, green: 0.92, blue: 1.0)], startPoint: .top, endPoint: .bottom))
+            .ignoresSafeArea(edges: .top)
+            .frame(height: 200)
+            
+            VStack(spacing: 12) {
+                headerBar(textColor: Color(red: 0.1, green: 0.2, blue: 0.4))
+                
+                // Meals Under 250 Banner
+                VStack(spacing: 0) {
+                    Text("MEALS UNDER ₹250")
+                        .font(.system(size: 24, weight: .black, design: .rounded))
+                        .foregroundColor(Color(red: 0.1, green: 0.3, blue: 0.7))
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .background(Color(red: 0.98, green: 0.93, blue: 0.88))
+                        .overlay(
+                            Rectangle().stroke(Color.white, lineWidth: 2)
+                        )
+                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                        .zIndex(1)
+                    
+                    Text("FINAL PRICE, BEST OFFER APPLIED")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .background(Color(red: 0.8, green: 0.2, blue: 0.2))
+                }
+                .padding(.bottom, 20)
+            }
+        }
+    }
+    
     // MARK: - Header Bar
-    private var headerBar: some View {
+    private func headerBar(textColor: Color = .white) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
@@ -150,7 +198,7 @@ public struct ZomatoHomeView: View {
                     .opacity(0.9)
                     .padding(.leading, 20)
             }
-            .foregroundColor(.white)
+            .foregroundColor(textColor)
             
             Spacer()
             
@@ -164,8 +212,8 @@ public struct ZomatoHomeView: View {
                 .background(Capsule().fill(Color(red: 0.96, green: 0.82, blue: 0.15)))
                 
                 Button(action: {}) {
-                    Circle().fill(Color.white.opacity(0.25)).frame(width: 36, height: 36)
-                        .overlay(Image(systemName: "bell.fill").foregroundColor(.white).font(.system(size: 15)))
+                    Circle().fill(Color.black.opacity(0.15)).frame(width: 36, height: 36)
+                        .overlay(Image(systemName: "bell.fill").foregroundColor(textColor).font(.system(size: 15)))
                 }
                 
                 Button(action: { showProfile = true }) {
@@ -252,7 +300,8 @@ public struct ZomatoHomeView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 0) {
                 // Explore ₹250 card
-                VStack(spacing: 6) {
+                if viewModel.selectedBottomTab != .under250 {
+                    VStack(spacing: 6) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 14)
                             .fill(LinearGradient(colors: [Color(red: 0.0, green: 0.35, blue: 0.25), Color(red: 0.0, green: 0.45, blue: 0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
@@ -270,6 +319,7 @@ public struct ZomatoHomeView: View {
                     Capsule().fill(Color.clear).frame(height: 3)
                 }
                 .padding(.trailing, 12)
+                }
                 
                 ForEach(viewModel.categories) { category in
                     let isSelected = category == viewModel.selectedCategory
