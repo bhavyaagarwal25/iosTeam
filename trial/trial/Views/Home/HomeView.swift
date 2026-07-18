@@ -13,6 +13,7 @@ public struct HomeView: View {
     @State private var navigateToCart: Bool = false
     @State private var showPantryScanner: Bool = false
     @State private var showFridgeScanner: Bool = false
+    @State private var navigateToProfile: Bool = false
     
     public var onRedirectToCart: (() -> Void)? = nil
     
@@ -36,9 +37,6 @@ public struct HomeView: View {
                         
                         // Search Bar Button
                         searchBarButton
-                        
-                        // Smart Fridge IoT & Pantry Vision AI Scanners
-                        aiScannersSection
                         
                         // Time-of-Day Context Greeting Banner
                         contextBannerView
@@ -135,6 +133,9 @@ public struct HomeView: View {
             .navigationDestination(isPresented: $navigateToCart) {
                 CartView()
             }
+            .navigationDestination(isPresented: $navigateToProfile) {
+                ProfileView()
+            }
             .sheet(item: $selectedProductForDetail) { product in
                 ProductDetailView(product: product)
             }
@@ -147,46 +148,6 @@ public struct HomeView: View {
                 })
             }
         }
-    }
-    
-    // AI Inventory Scanners (Smart Fridge IoT + Pantry Vision AI)
-    private var aiScannersSection: some View {
-        HStack(spacing: 12) {
-            // Button 1: Smart Fridge IoT
-            Button(action: {
-                showFridgeScanner = true
-                BlinkitTheme.triggerHaptic(.medium)
-            }) {
-                HStack(spacing: 10) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.blue.opacity(0.15))
-                            .frame(width: 38, height: 38)
-                        Image(systemName: "snowflake")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.blue)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Smart Fridge")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.primary)
-                        Text("IoT Auto-Scan")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                }
-                .padding(12)
-                .background(Color(uiColor: .secondarySystemBackground))
-                .cornerRadius(14)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(Color.blue.opacity(0.3), lineWidth: 1)
-                )
-            }
-        }
-        .padding(.horizontal, 16)
     }
     
     // Header View
@@ -214,11 +175,33 @@ public struct HomeView: View {
             
             Spacer()
             
-            // Profile icon
-            Image(systemName: "person.circle.fill")
-                .resizable()
-                .frame(width: 34, height: 34)
-                .foregroundColor(BlinkitTheme.brandGreen)
+            HStack(spacing: 12) {
+                // Scan Fridge Icon
+                Button(action: {
+                    showFridgeScanner = true
+                    BlinkitTheme.triggerHaptic(.medium)
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.blue.opacity(0.15))
+                            .frame(width: 34, height: 34)
+                        Image(systemName: "snowflake")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.blue)
+                    }
+                }
+                
+                // Profile Icon
+                Button(action: {
+                    navigateToProfile = true
+                    BlinkitTheme.triggerHaptic(.light)
+                }) {
+                    Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .frame(width: 34, height: 34)
+                        .foregroundColor(BlinkitTheme.brandGreen)
+                }
+            }
         }
         .padding(.horizontal, 16)
     }

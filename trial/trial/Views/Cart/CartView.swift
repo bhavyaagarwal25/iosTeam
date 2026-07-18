@@ -417,7 +417,7 @@ public struct CartView: View {
                     BlinkitTheme.triggerHaptic(.medium)
                 }) {
                     HStack {
-                        Text("Select address at next step")
+                        Text("Pay")
                             .font(.system(size: 16, weight: .semibold))
                         Image(systemName: "play.fill")
                             .font(.system(size: 10))
