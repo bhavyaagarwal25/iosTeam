@@ -11,13 +11,19 @@ public struct HomeView: View {
     @State private var selectedProductForDetail: Product? = nil
     @State private var navigateToSearch: Bool = false
     @State private var navigateToCart: Bool = false
+    @State private var showPantryScanner: Bool = false
+    @State private var showFridgeScanner: Bool = false
     
-    public init() {
+    public var onRedirectToCart: (() -> Void)? = nil
+    
+    public init(onRedirectToCart: (() -> Void)? = nil) {
         _viewModel = StateObject(wrappedValue: HomeViewModel())
+        self.onRedirectToCart = onRedirectToCart
     }
     
-    public init(viewModel: HomeViewModel) {
+    public init(viewModel: HomeViewModel, onRedirectToCart: (() -> Void)? = nil) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.onRedirectToCart = onRedirectToCart
     }
     
     public var body: some View {
@@ -30,6 +36,9 @@ public struct HomeView: View {
                         
                         // Search Bar Button
                         searchBarButton
+                        
+                        // Smart Fridge IoT & Pantry Vision AI Scanners
+                        aiScannersSection
                         
                         // Time-of-Day Context Greeting Banner
                         contextBannerView
@@ -129,7 +138,89 @@ public struct HomeView: View {
             .sheet(item: $selectedProductForDetail) { product in
                 ProductDetailView(product: product)
             }
+            .sheet(isPresented: $showPantryScanner) {
+                PantryScannerView()
+            }
+            .sheet(isPresented: $showFridgeScanner) {
+                SmartFridgeScannerView(onRedirectToCart: {
+                    onRedirectToCart?()
+                })
+            }
         }
+    }
+    
+    // AI Inventory Scanners (Smart Fridge IoT + Pantry Vision AI)
+    private var aiScannersSection: some View {
+        HStack(spacing: 12) {
+            // Button 1: Smart Fridge IoT
+            Button(action: {
+                showFridgeScanner = true
+                BlinkitTheme.triggerHaptic(.medium)
+            }) {
+                HStack(spacing: 10) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.blue.opacity(0.15))
+                            .frame(width: 38, height: 38)
+                        Image(systemName: "snowflake")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.blue)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Smart Fridge")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.primary)
+                        Text("IoT Auto-Scan")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                }
+                .padding(12)
+                .background(Color(uiColor: .secondarySystemBackground))
+                .cornerRadius(14)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                )
+            }
+            
+            // Button 2: Pantry Vision AI
+            Button(action: {
+                showPantryScanner = true
+                BlinkitTheme.triggerHaptic(.medium)
+            }) {
+                HStack(spacing: 10) {
+                    ZStack {
+                        Circle()
+                            .fill(BlinkitTheme.brandGreen.opacity(0.15))
+                            .frame(width: 38, height: 38)
+                        Image(systemName: "camera.viewfinder")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(BlinkitTheme.brandGreen)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Pantry Scan")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.primary)
+                        Text("Vision Kit AI")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                }
+                .padding(12)
+                .background(Color(uiColor: .secondarySystemBackground))
+                .cornerRadius(14)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(BlinkitTheme.brandGreen.opacity(0.3), lineWidth: 1)
+                )
+            }
+        }
+        .padding(.horizontal, 16)
     }
     
     // Header View

@@ -17,7 +17,7 @@ public enum MockData {
     // Mock Users
     public static let currentUser = User(
         id: "usr_1",
-        name: "You",
+        name: "you",
         avatarName: "person.crop.circle.fill",
         isCurrentUser: true,
         colorHex: "0C831F"
@@ -25,7 +25,7 @@ public enum MockData {
     
     public static let userRahul = User(
         id: "usr_2",
-        name: "Rahul",
+        name: "rahul",
         avatarName: "person.fill",
         isCurrentUser: false,
         colorHex: "007AFF"
@@ -33,7 +33,7 @@ public enum MockData {
     
     public static let userPriya = User(
         id: "usr_3",
-        name: "Priya",
+        name: "priya",
         avatarName: "person.fill.turn.down",
         isCurrentUser: false,
         colorHex: "FF2D55"
@@ -46,7 +46,7 @@ public enum MockData {
         // Dairy & Bread
         Product(
             id: "p1",
-            name: "Amul Taaza Toned Fresh Milk",
+            name: "milk",
             category: .dairy,
             price: 28.0,
             discountPrice: 27.0,
@@ -60,7 +60,7 @@ public enum MockData {
         ),
         Product(
             id: "p2",
-            name: "Amul Salted Butter",
+            name: "butter",
             category: .dairy,
             price: 58.0,
             discountPrice: 56.0,
@@ -74,7 +74,7 @@ public enum MockData {
         ),
         Product(
             id: "p3",
-            name: "Britannia 100% Whole Wheat Bread",
+            name: "bread",
             category: .dairy,
             price: 50.0,
             discountPrice: 45.0,
@@ -87,7 +87,7 @@ public enum MockData {
         ),
         Product(
             id: "p4",
-            name: "Epigamia Natural Greek Yogurt",
+            name: "epigamia natural greek yogurt",
             category: .dairy,
             price: 60.0,
             discountPrice: 52.0,
@@ -100,7 +100,7 @@ public enum MockData {
         ),
         Product(
             id: "p5",
-            name: "Mother Dairy Paneer (Cottage Cheese)",
+            name: "cheese",
             category: .dairy,
             price: 110.0,
             discountPrice: 99.0,
@@ -112,11 +112,91 @@ public enum MockData {
             isPopular: true,
             tag: "Fresh"
         ),
+        Product(
+            id: "p101",
+            name: "icecream",
+            category: .dairy,
+            price: 150.0,
+            discountPrice: 120.0,
+            unit: "500 ml",
+            systemImage: "snowflake",
+            rating: 4.9,
+            deliveryTime: "8 mins",
+            description: "Rich and creamy vanilla icecream brick.",
+            isPopular: true,
+            tag: "Best Seller"
+        ),
+        Product(
+            id: "p102",
+            name: "fruits",
+            category: .fruitsVeg,
+            price: 120.0,
+            discountPrice: 99.0,
+            unit: "1 kg",
+            systemImage: "applelogo",
+            rating: 4.8,
+            deliveryTime: "8 mins",
+            description: "Fresh, handpicked seasonal fruits basket.",
+            isPopular: true
+        ),
+        Product(
+            id: "p103",
+            name: "vegetables",
+            category: .fruitsVeg,
+            price: 80.0,
+            discountPrice: 65.0,
+            unit: "1 kg",
+            systemImage: "carrot.fill",
+            rating: 4.7,
+            deliveryTime: "8 mins",
+            description: "Farm-fresh mixed green vegetables.",
+            isPopular: true
+        ),
+        Product(
+            id: "p104",
+            name: "sauce",
+            category: .snacks,
+            price: 90.0,
+            discountPrice: 85.0,
+            unit: "500 g",
+            systemImage: "drop.triangle.fill",
+            rating: 4.6,
+            deliveryTime: "8 mins",
+            description: "Tangy fresh tomato ketchup & sauce bottle.",
+            isPopular: false
+        ),
+        Product(
+            id: "p105",
+            name: "dahi",
+            category: .dairy,
+            price: 45.0,
+            discountPrice: 40.0,
+            unit: "400 g",
+            systemImage: "cup.and.saucer.fill",
+            rating: 4.9,
+            deliveryTime: "8 mins",
+            description: "Thick, creamy, fresh curd (dahi) daily packed.",
+            isPopular: true,
+            tag: "Fresh"
+        ),
+        Product(
+            id: "p106",
+            name: "jam",
+            category: .snacks,
+            price: 110.0,
+            discountPrice: 95.0,
+            unit: "500 g",
+            systemImage: "jar.fill",
+            rating: 4.8,
+            deliveryTime: "8 mins",
+            description: "Delicious mixed fruit jam for breakfast.",
+            isPopular: true
+        ),
         
         // Fruits & Veg
         Product(
             id: "p6",
-            name: "Hybrid Tomato (Tamatar)",
+            name: "tomato",
             category: .fruitsVeg,
             price: 40.0,
             discountPrice: 32.0,
@@ -130,7 +210,7 @@ public enum MockData {
         ),
         Product(
             id: "p7",
-            name: "Fresh Red Onion (Pyaz)",
+            name: "onion",
             category: .fruitsVeg,
             price: 35.0,
             discountPrice: 29.0,
@@ -143,7 +223,7 @@ public enum MockData {
         ),
         Product(
             id: "p8",
-            name: "Fresh Potato (Aloo)",
+            name: "potato",
             category: .fruitsVeg,
             price: 30.0,
             discountPrice: 26.0,
@@ -156,7 +236,7 @@ public enum MockData {
         ),
         Product(
             id: "p9",
-            name: "Robusta Banana",
+            name: "banana",
             category: .fruitsVeg,
             price: 45.0,
             discountPrice: 39.0,
@@ -169,23 +249,23 @@ public enum MockData {
         ),
         Product(
             id: "p10",
-            name: "Washington Red Delicious Apple",
-            category: .fruitsVeg,
-            price: 180.0,
-            discountPrice: 155.0,
-            unit: "4 pcs (~700g)",
-            systemImage: "applelogo",
+            name: "eggs",
+            category: .dairy,
+            price: 60.0,
+            discountPrice: 55.0,
+            unit: "6 pcs",
+            systemImage: "circle.grid.2x2.fill",
             rating: 4.9,
-            deliveryTime: "10 mins",
-            description: "Crisp, juicy and extra sweet imported red apples.",
+            deliveryTime: "8 mins",
+            description: "Fresh farm-sourced eggs rich in protein.",
             isPopular: true,
-            tag: "Imported"
+            tag: "High Protein"
         ),
         
         // Snacks & Munchies
         Product(
             id: "p11",
-            name: "Maggi 2-Minute Masala Noodles",
+            name: "maggi",
             category: .snacks,
             price: 96.0,
             discountPrice: 88.0,
@@ -199,7 +279,7 @@ public enum MockData {
         ),
         Product(
             id: "p12",
-            name: "Lay's India's Magic Masala Chips",
+            name: "lay's",
             category: .snacks,
             price: 20.0,
             discountPrice: 20.0,
@@ -212,7 +292,7 @@ public enum MockData {
         ),
         Product(
             id: "p13",
-            name: "Haldiram's Nagpur Aloo Bhujia",
+            name: "aloo bhujia",
             category: .snacks,
             price: 65.0,
             discountPrice: 59.0,
@@ -225,7 +305,7 @@ public enum MockData {
         ),
         Product(
             id: "p14",
-            name: "Doritos Nacho Cheese Tortilla Chips",
+            name: "chips",
             category: .snacks,
             price: 50.0,
             discountPrice: 45.0,
@@ -238,7 +318,7 @@ public enum MockData {
         ),
         Product(
             id: "p15",
-            name: "Cadbury Dairy Milk Silk Chocolate",
+            name: "cadbury dairy milk silk chocolate",
             category: .snacks,
             price: 175.0,
             discountPrice: 159.0,
@@ -254,7 +334,7 @@ public enum MockData {
         // Cold Drinks & Juices
         Product(
             id: "p16",
-            name: "Coca-Cola Original Soft Drink",
+            name: "coca-cola original soft drink",
             category: .beverages,
             price: 40.0,
             discountPrice: 38.0,
@@ -267,7 +347,7 @@ public enum MockData {
         ),
         Product(
             id: "p17",
-            name: "Real Fruit Power Alphonso Mango Juice",
+            name: "real fruit power alphonso mango juice",
             category: .beverages,
             price: 125.0,
             discountPrice: 110.0,
@@ -280,7 +360,7 @@ public enum MockData {
         ),
         Product(
             id: "p18",
-            name: "Red Bull Energy Drink",
+            name: "red bull energy drink",
             category: .beverages,
             price: 125.0,
             discountPrice: 120.0,
@@ -294,7 +374,7 @@ public enum MockData {
         ),
         Product(
             id: "p19",
-            name: "Bisleri Packaged Drinking Water",
+            name: "bisleri packaged drinking water",
             category: .beverages,
             price: 20.0,
             discountPrice: 20.0,
@@ -309,20 +389,21 @@ public enum MockData {
         // Household Essentials
         Product(
             id: "p20",
-            name: "Surf Excel Easy Wash Detergent Powder",
-            category: .household,
-            price: 140.0,
-            discountPrice: 125.0,
-            unit: "1 kg",
-            systemImage: "washer.fill",
+            name: "juice",
+            category: .beverages,
+            price: 90.0,
+            discountPrice: 80.0,
+            unit: "1 L",
+            systemImage: "sun.max.fill",
             rating: 4.8,
-            deliveryTime: "10 mins",
-            description: "Removes tough stains inside the washing machine or handwash.",
-            isPopular: false
+            deliveryTime: "8 mins",
+            description: "Fresh premium alfonso mango fruit juice.",
+            isPopular: true,
+            tag: "Refreshing"
         ),
         Product(
             id: "p21",
-            name: "Vim Dishwash Gel Lemon",
+            name: "vim dishwash gel lemon",
             category: .household,
             price: 115.0,
             discountPrice: 99.0,
@@ -335,7 +416,7 @@ public enum MockData {
         ),
         Product(
             id: "p22",
-            name: "Dettol Antiseptic Disinfectant Liquid",
+            name: "dettol antiseptic disinfectant liquid",
             category: .household,
             price: 215.0,
             discountPrice: 195.0,
@@ -348,7 +429,7 @@ public enum MockData {
         ),
         Product(
             id: "p23",
-            name: "Fortune Sunlite Refined Sunflower Oil",
+            name: "fortune sunlite refined sunflower oil",
             category: .household,
             price: 145.0,
             discountPrice: 132.0,
@@ -361,7 +442,7 @@ public enum MockData {
         ),
         Product(
             id: "p24",
-            name: "Tata Salt Vacuum Evaporated Iodised Salt",
+            name: "tata salt vacuum evaporated iodised salt",
             category: .household,
             price: 28.0,
             discountPrice: 25.0,
@@ -374,7 +455,7 @@ public enum MockData {
         ),
         Product(
             id: "p25",
-            name: "Aashirvaad Shuddh Chakki Atta",
+            name: "aashirvaad shuddh chakki atta",
             category: .household,
             price: 260.0,
             discountPrice: 235.0,

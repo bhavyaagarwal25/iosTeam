@@ -18,45 +18,47 @@ public struct CartView: View {
     }
     
     public var body: some View {
-        ZStack(alignment: .bottom) {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 16) {
-                    // Delivery ETA banner
-                    deliveryBanner
-                    
-                    // Group Cart Entry Card
-                    groupCartBanner
-                    
-                    if viewModel.cartService.items.isEmpty {
-                        emptyCartView
-                    } else {
-                        // Cart Items List
-                        cartItemsSection
+        NavigationStack {
+            ZStack(alignment: .bottom) {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 16) {
+                        // Delivery ETA banner
+                        deliveryBanner
                         
-                        // Bill Details Breakdown
-                        billDetailsSection
+                        // Group Cart Entry Card
+                        groupCartBanner
+                        
+                        if viewModel.cartService.items.isEmpty {
+                            emptyCartView
+                        } else {
+                            // Cart Items List
+                            cartItemsSection
+                            
+                            // Bill Details Breakdown
+                            billDetailsSection
+                        }
+                        
+                        // Saved Lists for 1-Tap Reorder
+                        savedListsSection
+                        
+                        Spacer().frame(height: 100)
                     }
-                    
-                    // Saved Lists for 1-Tap Reorder
-                    savedListsSection
-                    
-                    Spacer().frame(height: 100)
+                    .padding(.top, 12)
                 }
-                .padding(.top, 12)
+                
+                // Bottom Checkout Footer
+                if !viewModel.cartService.items.isEmpty {
+                    checkoutFooterBar
+                }
             }
-            
-            // Bottom Checkout Footer
-            if !viewModel.cartService.items.isEmpty {
-                checkoutFooterBar
+            .navigationTitle("My Cart")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(isPresented: $viewModel.showGroupCart) {
+                GroupCartView()
             }
-        }
-        .navigationTitle("My Cart")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(isPresented: $viewModel.showGroupCart) {
-            GroupCartView()
-        }
-        .navigationDestination(isPresented: $viewModel.showCheckout) {
-            CheckoutView()
+            .navigationDestination(isPresented: $viewModel.showCheckout) {
+                CheckoutView()
+            }
         }
     }
     

@@ -17,7 +17,9 @@ public struct ContentView: View {
     
     public var body: some View {
         TabView(selection: $selectedTab) {
-            HomeView()
+            HomeView(onRedirectToCart: {
+                selectedTab = 2
+            })
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
                 }
@@ -50,6 +52,17 @@ public struct ContentView: View {
                 .tag(4)
         }
         .tint(BlinkitTheme.brandGreen)
+        .onAppear {
+            // Nuke ALL stale persisted data on every launch — ensures clean state for demo
+            let keysToWipe = [
+                "blinkit_mock_iot_telemetry_v2",
+                "blinkit_home_inventory_v1",
+                "blinkit_cart_items_v1",
+                "blinkit_last_scan_snapshot_v1",
+                "blinkit_last_order_v1"
+            ]
+            keysToWipe.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        }
         .onOpenURL { url in
             // Deep link handler (e.g. from Widget or Siri)
             if url.host == "reorder" {
