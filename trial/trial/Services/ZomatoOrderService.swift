@@ -1,6 +1,12 @@
 //
 //  ZomatoOrderService.swift
-//  trial
+//  trial + Eternal Lite
+//
+//  ETERNAL LITE INTEGRATION:
+//  - On placeOrder(): starts a Live Activity (replaces polling)
+//  - On advanceStage(): updates the Live Activity via ActivityKit (simulated push)
+//  - Traditional mode: also polls via timer, incrementing API counter each time
+//  - Lite mode: zero polling — Live Activity receives "push" updates only
 //
 
 import Foundation
@@ -15,6 +21,18 @@ public class ZomatoOrderService: ObservableObject {
     @Published public var pastOrders: [ZomatoOrder] = MockZomatoData.pastOrders
     
     private var stageTimer: Timer?
+    
+    /// Reference to the API service for incrementing the call counter
+    /// when traditional polling is active
+    private let apiService = EternalLiteAPIService.shared
+    private let liveActivityManager = LiveActivityManager.shared
+    private let networkMonitor = NetworkMonitor.shared
+    
+    /// Tracks whether we're using Live Activity (push) or polling (traditional)
+    @Published public var isUsingLiveActivity: Bool = true
+    
+    /// Counter for polling calls specifically (for demo comparison)
+    @Published public var pollingCallCount: Int = 0
     
     public init() {}
     
@@ -42,6 +60,16 @@ public class ZomatoOrderService: ObservableObject {
         activeOrder = order
         pastOrders.insert(order, at: 0)
         cartService.clearCart()
+        
+        // 🆕 ETERNAL LITE: Start Live Activity instead of polling
+        // This is the key optimization — the Dynamic Island shows order progress
+        // WITHOUT the app needing to poll the server.
+        liveActivityManager.startOrderTrackingActivity(
+            stageName: order.stage.rawValue,
+            etaMinutes: order.estimatedMinutes,
+            riderName: order.riderName,
+            progress: order.stage.progressValue
+        )
         
         startStageSimulation()
         BlinkitTheme.triggerNotificationHaptic(.success)
@@ -74,14 +102,42 @@ public class ZomatoOrderService: ObservableObject {
         if let idx = pastOrders.firstIndex(where: { $0.id == order.id }) {
             pastOrders[idx] = order
         }
+        
+        // 🆕 ETERNAL LITE: Update Live Activity (simulates APNs push)
+        // In production, the server would send this push when the rider's
+        // status changes. The app doesn't need to ask — the server tells it.
+        if order.stage == .delivered {
+            liveActivityManager.stopOrderTrackingActivity()
+        } else {
+            liveActivityManager.updateOrderStage(
+                stageName: order.stage.rawValue,
+                etaMinutes: order.estimatedMinutes,
+                riderName: order.riderName,
+                progress: order.stage.progressValue
+            )
+        }
+        
         BlinkitTheme.triggerHaptic(.medium)
     }
     
     private func startStageSimulation() {
         stageTimer?.invalidate()
-        stageTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+        pollingCallCount = 0
+        
+        // Stage advances every 30 seconds (more realistic than 5s)
+        stageTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self = self, let current = self.activeOrder else { return }
+                
+                // TRADITIONAL MODE: Each timer tick = 1 polling API call
+                // In a real app without Live Activities, the client would
+                // GET /order/{id}/status every 5 seconds, burning through
+                // ~360 API calls for a 30-minute delivery.
+                if !self.networkMonitor.isLiteMode {
+                    self.apiService.pollOrderStatus()
+                    self.pollingCallCount += 1
+                }
+                
                 if current.stage != .delivered {
                     self.advanceStage()
                 } else {
@@ -96,5 +152,7 @@ public class ZomatoOrderService: ObservableObject {
         activeOrder = nil
         stageTimer?.invalidate()
         stageTimer = nil
+        liveActivityManager.stopOrderTrackingActivity()
     }
 }
+

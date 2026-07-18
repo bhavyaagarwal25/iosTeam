@@ -11,6 +11,12 @@ import SwiftUI
 public struct ContentView: View {
     @StateObject private var cartService = CartService.shared
     @StateObject private var orderService = OrderService.shared
+    
+    // 🆕 ETERNAL LITE: Network monitoring and API instrumentation
+    @StateObject private var networkMonitor = NetworkMonitor.shared
+    @StateObject private var apiService = EternalLiteAPIService.shared
+    @StateObject private var cacheService = LiteCacheService.shared
+    
     @State private var selectedTab: Int = 0
     @State private var isZomatoMode: Bool = false
     
@@ -48,6 +54,24 @@ public struct ContentView: View {
             appSwitcherButton
                 .padding(.trailing, 16)
                 .padding(.bottom, 90)
+        }
+        // 🆕 ETERNAL LITE: Overlay debug tools and lite mode banner
+        .overlay(alignment: .top) {
+            if isZomatoMode {
+                LiteModeBanner(networkMonitor: networkMonitor)
+                    .padding(.top, 50)
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            if isZomatoMode {
+                DebugOverlay(
+                    apiService: apiService,
+                    networkMonitor: networkMonitor,
+                    cacheService: cacheService
+                )
+                .padding(.top, 100)
+                .padding(.trailing, 8)
+            }
         }
         .onAppear {
             // Nuke ALL stale persisted data on every launch — ensures clean state for demo
