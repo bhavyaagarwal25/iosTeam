@@ -2,135 +2,278 @@
 //  HandCricketView.swift
 //  BlinkitFlow
 //
-//  Mini game shown while waiting for order delivery.
-//
 
 import SwiftUI
 
+@MainActor
 public struct HandCricketView: View {
-    public let opponentName: String
-    public let onDismiss: () -> Void
+    let opponentName: String
+    let onExit: () -> Void
     
-    @State private var playerScore: Int = 0
-    @State private var opponentScore: Int = 0
-    @State private var playerChoice: Int? = nil
-    @State private var opponentChoice: Int? = nil
-    @State private var round: Int = 1
+    // Game State
+    @State private var userRuns: Int = 0
+    @State private var opponentRuns: Int = 0
+    @State private var userIsBatting: Bool = true // User bats first for simplicity
+    @State private var currentInning: Int = 1 // 1 or 2
     @State private var gameOver: Bool = false
-    @State private var resultMessage: String = ""
+    @State private var matchResult: String = ""
     
-    public init(opponentName: String, onDismiss: @escaping () -> Void) {
+    // Current Turn State
+    @State private var userChoice: Int? = nil
+    @State private var opponentChoice: Int? = nil
+    @State private var statusMessage: String = "You are batting now"
+    
+    public init(opponentName: String, onExit: @escaping () -> Void) {
         self.opponentName = opponentName
-        self.onDismiss = onDismiss
+        self.onExit = onExit
     }
     
     public var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                Text("✋ Hand Cricket")
-                    .font(.system(size: 28, weight: .black))
-                
-                HStack(spacing: 40) {
-                    scoreBox(label: "You", score: playerScore)
-                    Text("VS").font(.system(size: 18, weight: .bold)).foregroundColor(.secondary)
-                    scoreBox(label: opponentName, score: opponentScore)
+        ZStack {
+            // Background
+            LinearGradient(
+                gradient: Gradient(colors: [Color(red: 0.4, green: 0.6, blue: 0.9), Color(red: 0.6, green: 0.8, blue: 0.95)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .edgesIgnoringSafeArea(.all)
+            
+            VStack {
+                // Exit Button
+                HStack {
+                    Button(action: onExit) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(10)
+                            .background(Color.black.opacity(0.4))
+                            .clipShape(Circle())
+                    }
+                    Spacer()
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
                 
-                if gameOver {
-                    Text(resultMessage)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(BlinkitTheme.brandGreen)
-                        .padding()
-                    
-                    Button("Play Again") {
-                        resetGame()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(BlinkitTheme.brandGreen)
-                } else {
-                    Text("Round \(round) — Pick a number:")
-                        .font(.system(size: 16, weight: .semibold))
-                    
-                    LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 3), spacing: 12) {
-                        ForEach(1...6, id: \.self) { num in
-                            Button("\(num)") {
-                                playRound(playerPick: num)
-                            }
-                            .font(.system(size: 22, weight: .bold))
-                            .frame(width: 70, height: 70)
-                            .background(BlinkitTheme.brandGreenLight)
-                            .cornerRadius(14)
-                            .foregroundColor(BlinkitTheme.brandGreen)
-                        }
-                    }
-                    .padding(.horizontal)
-                    
-                    if let pc = playerChoice, let oc = opponentChoice {
-                        Text("You: \(pc)  •  \(opponentName): \(oc)")
-                            .font(.system(size: 14))
-                            .foregroundColor(.secondary)
-                    }
-                }
+                // Header Scoreboard
+                scoreboardView
                 
                 Spacer()
+                
+                // Play Area (Hands)
+                playAreaView
+                
+                Spacer()
+                
+                // Status and Keypad
+                VStack(spacing: 16) {
+                    Text(statusMessage)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 10)
+                        .background(Color.black.opacity(0.3))
+                        .cornerRadius(20)
+                    
+                    if gameOver {
+                        Button(action: resetGame) {
+                            Text("Play Again")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.green)
+                                .cornerRadius(12)
+                        }
+                        .padding(.horizontal, 24)
+                    } else {
+                        keypadView
+                    }
+                }
+                .padding(.bottom, 30)
+            }
+        }
+    }
+    
+    // MARK: - Subviews
+    
+    private var scoreboardView: some View {
+        HStack {
+            // User Score
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Circle()
+                        .fill(Color.blue)
+                        .frame(width: 32, height: 32)
+                        .overlay(Text("Me").font(.system(size: 12, weight: .bold)).foregroundColor(.white))
+                    Text("Gul")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                    Spacer()
+                    if userIsBatting {
+                        Image(systemName: "cricket.ball.fill")
+                            .foregroundColor(.yellow)
+                            .font(.system(size: 12))
+                    }
+                }
+                Text("\(userRuns) runs")
+                    .font(.system(size: 14))
+                    .foregroundColor(.white)
             }
             .padding()
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Close") { onDismiss() }
+            .background(Color.blue.opacity(0.6))
+            .cornerRadius(12)
+            
+            Spacer()
+            
+            // Opponent Score
+            VStack(alignment: .trailing, spacing: 4) {
+                HStack {
+                    if !userIsBatting {
+                        Image(systemName: "cricket.ball.fill")
+                            .foregroundColor(.yellow)
+                            .font(.system(size: 12))
+                    }
+                    Spacer()
+                    Text(opponentName)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 32, height: 32)
+                        .overlay(Text(String(opponentName.prefix(1))).font(.system(size: 14, weight: .bold)).foregroundColor(.white))
+                }
+                Text("\(opponentRuns) runs")
+                    .font(.system(size: 14))
+                    .foregroundColor(.white)
+            }
+            .padding()
+            .background(Color.red.opacity(0.6))
+            .cornerRadius(12)
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
+    }
+    
+    private var playAreaView: some View {
+        HStack {
+            // User Hand
+            VStack {
+                Text(emojiForChoice(userChoice))
+                    .font(.system(size: 100))
+                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0)) // Flip for left side
+            }
+            Spacer()
+            // Opponent Hand
+            VStack {
+                Text(emojiForChoice(opponentChoice))
+                    .font(.system(size: 100))
+            }
+        }
+        .padding(.horizontal, 40)
+    }
+    
+    private var keypadView: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                keypadButton(number: 1)
+                keypadButton(number: 2)
+                keypadButton(number: 3)
+            }
+            HStack(spacing: 12) {
+                keypadButton(number: 4)
+                keypadButton(number: 5)
+                keypadButton(number: 6)
+            }
+        }
+        .padding(.horizontal, 24)
+    }
+    
+    private func keypadButton(number: Int) -> some View {
+        Button(action: {
+            playTurn(userChoice: number)
+        }) {
+            Text("\(number)")
+                .font(.system(size: 24, weight: .black))
+                .foregroundColor(.blue)
+                .frame(maxWidth: .infinity)
+                .frame(height: 60)
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(radius: 2)
+        }
+    }
+    
+    // MARK: - Game Logic
+    
+    private func emojiForChoice(_ choice: Int?) -> String {
+        switch choice {
+        case 1: return "☝️"
+        case 2: return "✌️"
+        case 3: return "🤟"
+        case 4: return "🖖"
+        case 5: return "🖐️"
+        case 6: return "👍"
+        default: return "✊" // Waiting
+        }
+    }
+    
+    private func playTurn(userChoice: Int) {
+        let opponentChoice = Int.random(in: 1...6)
+        self.userChoice = userChoice
+        self.opponentChoice = opponentChoice
+        
+        if userChoice == opponentChoice {
+            // WICKET!
+            if currentInning == 1 {
+                // Switch innings
+                currentInning = 2
+                userIsBatting.toggle()
+                statusMessage = "OUT! \(userIsBatting ? "You are" : "\(opponentName) is") batting now."
+            } else {
+                // Match Over
+                gameOver = true
+                determineWinner()
+            }
+        } else {
+            // RUNS SCORED
+            if userIsBatting {
+                userRuns += userChoice
+            } else {
+                opponentRuns += opponentChoice
+            }
+            statusMessage = "\(userIsBatting ? "You" : opponentName) scored \(userIsBatting ? userChoice : opponentChoice) runs!"
+            
+            // Check if second inning and target chased
+            if currentInning == 2 {
+                if userIsBatting && userRuns > opponentRuns {
+                    gameOver = true
+                    determineWinner()
+                } else if !userIsBatting && opponentRuns > userRuns {
+                    gameOver = true
+                    determineWinner()
                 }
             }
         }
     }
     
-    private func scoreBox(label: String, score: Int) -> some View {
-        VStack(spacing: 4) {
-            Text("\(score)")
-                .font(.system(size: 36, weight: .black))
-                .foregroundColor(BlinkitTheme.brandGreen)
-            Text(label)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(.secondary)
-        }
-    }
-    
-    private func playRound(playerPick: Int) {
-        let opponentPick = Int.random(in: 1...6)
-        playerChoice = playerPick
-        opponentChoice = opponentPick
-        
-        if playerPick == opponentPick {
-            // Out — opponent scores
-            opponentScore += playerPick
+    private func determineWinner() {
+        if userRuns > opponentRuns {
+            statusMessage = "🎉 YOU WON!"
+        } else if opponentRuns > userRuns {
+            statusMessage = "😔 \(opponentName) WON!"
         } else {
-            playerScore += playerPick
-        }
-        
-        round += 1
-        if round > 5 {
-            endGame()
-        }
-    }
-    
-    private func endGame() {
-        gameOver = true
-        if playerScore > opponentScore {
-            resultMessage = "🎉 You Win! \(playerScore) - \(opponentScore)"
-        } else if opponentScore > playerScore {
-            resultMessage = "😔 \(opponentName) Wins! \(opponentScore) - \(playerScore)"
-        } else {
-            resultMessage = "🤝 It's a Tie! \(playerScore) - \(opponentScore)"
+            statusMessage = "🤝 MATCH DRAWN!"
         }
     }
     
     private func resetGame() {
-        playerScore = 0
-        opponentScore = 0
-        round = 1
-        playerChoice = nil
-        opponentChoice = nil
+        userRuns = 0
+        opponentRuns = 0
+        userIsBatting = true
+        currentInning = 1
         gameOver = false
-        resultMessage = ""
+        userChoice = nil
+        opponentChoice = nil
+        statusMessage = "You are batting now"
     }
 }

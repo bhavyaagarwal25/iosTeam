@@ -1,10 +1,3 @@
-//
-//  trialWidgetBundle.swift
-//  trialWidgetExtension
-//
-//  WidgetBundle entry point for the trialWidgetExtension target.
-//
-
 import WidgetKit
 import SwiftUI
 
