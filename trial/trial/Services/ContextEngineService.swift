@@ -57,8 +57,8 @@ public class ContextEngineService {
             // Night
             let nightRecs = products.filter { $0.category == .snacks || $0.category == .beverages }
             return ContextInfo(
-                greetingTitle: "Late Night Munchies 🌙",
-                greetingSubtitle: "Chocolates, instant noodles & beverages at your door",
+                greetingTitle: "Good Evening! 🌙",
+                greetingSubtitle: "Late night cravings delivered fast",
                 suggestedCategories: [.snacks, .beverages],
                 bannerIcon: "moon.stars.fill",
                 recommendedProducts: Array(nightRecs.prefix(6))

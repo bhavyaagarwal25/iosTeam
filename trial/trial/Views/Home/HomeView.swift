@@ -185,40 +185,6 @@ public struct HomeView: View {
                         .stroke(Color.blue.opacity(0.3), lineWidth: 1)
                 )
             }
-            
-            // Button 2: Pantry Vision AI
-            Button(action: {
-                showPantryScanner = true
-                BlinkitTheme.triggerHaptic(.medium)
-            }) {
-                HStack(spacing: 10) {
-                    ZStack {
-                        Circle()
-                            .fill(BlinkitTheme.brandGreen.opacity(0.15))
-                            .frame(width: 38, height: 38)
-                        Image(systemName: "camera.viewfinder")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(BlinkitTheme.brandGreen)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Pantry Scan")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.primary)
-                        Text("Vision Kit AI")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                }
-                .padding(12)
-                .background(Color(uiColor: .secondarySystemBackground))
-                .cornerRadius(14)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(BlinkitTheme.brandGreen.opacity(0.3), lineWidth: 1)
-                )
-            }
         }
         .padding(.horizontal, 16)
     }
