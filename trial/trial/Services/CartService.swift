@@ -49,6 +49,9 @@ public class CartService: ObservableObject {
         items.reduce(0) { $0 + $1.quantity }
     }
     
+    @Published public var invitedFamilyMembers: [User] = [MockData.currentUser]
+    private var simulationTimer: Timer?
+    
     public init(persistenceService: PersistenceServiceProtocol = PersistenceService.shared) {
         self.persistenceService = persistenceService
         
@@ -58,8 +61,8 @@ public class CartService: ObservableObject {
         
         // Setup initial empty Group Cart
         self.groupCart = GroupCart(
-            title: "House Party Groceries 🥳",
-            participants: MockData.allUsers,
+            title: "Family Groceries 🏡",
+            participants: self.invitedFamilyMembers,
             items: self.items
         )
     }
@@ -104,9 +107,32 @@ public class CartService: ObservableObject {
         saveAndSync()
     }
     
+    public func inviteFamilyMember(_ user: User) {
+        if !invitedFamilyMembers.contains(where: { $0.id == user.id }) {
+            invitedFamilyMembers.append(user)
+            if var g = groupCart {
+                g.participants = invitedFamilyMembers
+                self.groupCart = g
+            }
+            startSimulationTimer()
+        }
+    }
+    
+    private func startSimulationTimer() {
+        guard simulationTimer == nil else { return }
+        simulationTimer = Timer.scheduledTimer(withTimeInterval: 6.0, repeats: true) { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.simulateTeammateAddingItem()
+            }
+        }
+    }
+    
     // DEMO: Group Cart live teammate simulation
     public func simulateTeammateAddingItem() {
-        let teammate = [MockData.userRahul, MockData.userPriya].randomElement()!
+        let activeTeammates = invitedFamilyMembers.filter { $0.id != MockData.currentUser.id }
+        guard !activeTeammates.isEmpty else { return }
+        
+        let teammate = activeTeammates.randomElement()!
         let randomProduct = MockData.sampleProducts.randomElement()!
         addToCart(product: randomProduct, quantity: 1, user: teammate)
         BlinkitTheme.triggerNotificationHaptic(.success)
