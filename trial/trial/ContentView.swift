@@ -35,7 +35,10 @@ public struct ContentView: View {
             } else {
                 // Blinkit Mode Navigation
                 TabView(selection: $selectedTab) {
-                    HomeView()
+                    HomeView(
+                        onRedirectToCart: { selectedTab = 2 },
+                        onRedirectToProfile: { selectedTab = 4 }
+                    )
                         .tabItem {
                             Label("Home", systemImage: "house.fill")
                         }
@@ -113,6 +116,12 @@ public struct ContentView: View {
                     selectedTab = 2
                 }
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToTrackingTab"))) { _ in
+            selectedTab = 3
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToHomeTab"))) { _ in
+            selectedTab = 0
         }
     }
     

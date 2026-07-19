@@ -10,20 +10,20 @@ public struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
     @State private var selectedProductForDetail: Product? = nil
     @State private var navigateToSearch: Bool = false
-    @State private var navigateToCart: Bool = false
     @State private var showPantryScanner: Bool = false
-    @State private var showFridgeScanner: Bool = false
-    @State private var navigateToProfile: Bool = false
+    @State private var showUpToDateAlert: Bool = false
     @ObservedObject private var cartService = CartService.shared
     
     public var onRedirectToCart: (() -> Void)? = nil
+    public var onRedirectToProfile: (() -> Void)? = nil
     
-    public init(onRedirectToCart: (() -> Void)? = nil) {
+    public init(onRedirectToCart: (() -> Void)? = nil, onRedirectToProfile: (() -> Void)? = nil) {
         _viewModel = StateObject(wrappedValue: HomeViewModel())
         self.onRedirectToCart = onRedirectToCart
+        self.onRedirectToProfile = onRedirectToProfile
     }
     
-    public init(viewModel: HomeViewModel, onRedirectToCart: (() -> Void)? = nil) {
+    public init(viewModel: HomeViewModel, onRedirectToCart: (() -> Void)? = nil, onRedirectToProfile: (() -> Void)? = nil) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.onRedirectToCart = onRedirectToCart
     }
@@ -129,23 +129,18 @@ public struct HomeView: View {
             .navigationDestination(isPresented: $navigateToSearch) {
                 SearchView()
             }
-            .navigationDestination(isPresented: $navigateToCart) {
-                CartView()
-            }
-            .navigationDestination(isPresented: $navigateToProfile) {
-                ProfileView()
-            }
             .sheet(item: $selectedProductForDetail) { product in
                 ProductDetailView(product: product)
             }
             .sheet(isPresented: $showPantryScanner) {
                 PantryScannerView()
             }
-            .sheet(isPresented: $showFridgeScanner) {
-                SmartFridgeScannerView(onRedirectToCart: {
-                    onRedirectToCart?()
-                })
+            .alert("Fridge Status", isPresented: $showUpToDateAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Your fridge is up to date! ❄️")
             }
+
         }
     }
     
@@ -177,8 +172,21 @@ public struct HomeView: View {
             HStack(spacing: 12) {
                 // Scan Fridge Icon
                 Button(action: {
-                    showFridgeScanner = true
                     BlinkitTheme.triggerHaptic(.medium)
+                    
+                    let lowItems = InventoryManager.shared.items.filter { $0.status == .low || $0.status == .missing }
+                    
+                    if lowItems.isEmpty {
+                        showUpToDateAlert = true
+                    } else {
+                        // Add all low items to cart
+                        for item in lowItems {
+                            if let product = MockData.sampleProducts.first(where: { $0.name.localizedCaseInsensitiveContains(item.name) }) {
+                                cartService.addToCart(product: product)
+                            }
+                        }
+                        onRedirectToCart?()
+                    }
                 }) {
                     ZStack {
                         Circle()
@@ -189,10 +197,12 @@ public struct HomeView: View {
                             .foregroundColor(.blue)
                     }
                 }
+                .disabled(areFridgeItemsInCart)
+                .opacity(areFridgeItemsInCart ? 0.4 : 1.0)
                 
                 // Profile Icon
                 Button(action: {
-                    navigateToProfile = true
+                    onRedirectToProfile?()
                     BlinkitTheme.triggerHaptic(.light)
                 }) {
                     Image(systemName: "person.circle.fill")
@@ -224,18 +234,7 @@ public struct HomeView: View {
             }
             .buttonStyle(.plain)
             
-            Divider()
-                .frame(height: 20)
-            
-            Button(action: {
-                showPantryScanner = true
-                BlinkitTheme.triggerHaptic(.light)
-            }) {
-                Image(systemName: "camera.viewfinder")
-                    .foregroundColor(BlinkitTheme.brandGreen)
-                    .font(.system(size: 18, weight: .semibold))
-            }
-            
+
             Button(action: {
                 // Mic button remains for consistency
             }) {
@@ -255,7 +254,7 @@ public struct HomeView: View {
     // Floating Cart Bar
     private var floatingCartBar: some View {
         Button(action: {
-            navigateToCart = true
+            onRedirectToCart?()
             BlinkitTheme.triggerHaptic(.medium)
         }) {
             HStack {
@@ -296,7 +295,7 @@ public struct HomeView: View {
             .cornerRadius(16)
             .shadow(color: BlinkitTheme.brandGreen.opacity(0.4), radius: 10, x: 0, y: 5)
             .padding(.horizontal, 16)
-            .padding(.bottom, 86)
+            .padding(.bottom, 16) // Lowered this since TabView handles safe area
         }
     }
     
@@ -309,6 +308,25 @@ public struct HomeView: View {
     private func updateQty(product: Product, delta: Int) {
         if let item = cartService.items.first(where: { $0.product.id == product.id }) {
             cartService.updateQuantity(for: item.id, quantity: item.quantity + delta)
+        } else if delta > 0 {
+            cartService.addToCart(product: product)
+        }
+    }
+    
+    private var areFridgeItemsInCart: Bool {
+        let lowItems = InventoryManager.shared.items.filter { $0.status == .low || $0.status == .missing }
+        guard !lowItems.isEmpty else { return false }
+        
+        // Only consider low items that actually exist in our product catalog
+        let availableLowItems = lowItems.filter { item in
+            MockData.sampleProducts.contains(where: { $0.name.localizedCaseInsensitiveContains(item.name) })
+        }
+        
+        guard !availableLowItems.isEmpty else { return false }
+        
+        // Return true if ALL available low items are already in the cart
+        return availableLowItems.allSatisfy { item in
+            cartService.items.contains(where: { $0.product.name.localizedCaseInsensitiveContains(item.name) })
         }
     }
 }

@@ -8,14 +8,16 @@ import SwiftUI
 @MainActor
 public struct CheckoutView: View {
     @StateObject private var viewModel: CheckoutViewModel
-    @State private var navigateToTracking: Bool = false
+    public var onOrderPlaced: (() -> Void)? = nil
     
-    public init() {
+    public init(onOrderPlaced: (() -> Void)? = nil) {
         _viewModel = StateObject(wrappedValue: CheckoutViewModel())
+        self.onOrderPlaced = onOrderPlaced
     }
     
-    public init(viewModel: CheckoutViewModel) {
+    public init(viewModel: CheckoutViewModel, onOrderPlaced: (() -> Void)? = nil) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.onOrderPlaced = onOrderPlaced
     }
     
     public var body: some View {
@@ -44,9 +46,8 @@ public struct CheckoutView: View {
         }
         .navigationTitle("Checkout")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(isPresented: $navigateToTracking) {
-            OrderTrackingView()
-        }
+        .navigationBarHidden(false) // Fix for broken back button when pushed from CartView
+        .navigationBarHidden(false)
     }
     
     private var addressCard: some View {
@@ -193,7 +194,7 @@ public struct CheckoutView: View {
         Button(action: {
             // DEMO: Live Activity starts here
             viewModel.placeOrder()
-            navigateToTracking = true
+            onOrderPlaced?()
         }) {
             HStack {
                 VStack(alignment: .leading, spacing: 1) {

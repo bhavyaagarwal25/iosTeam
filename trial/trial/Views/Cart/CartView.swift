@@ -7,6 +7,7 @@ import SwiftUI
 
 @MainActor
 public struct CartView: View {
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: CartViewModel
     
     public init() {
@@ -61,7 +62,10 @@ public struct CartView: View {
                 GroupCartView()
             }
             .navigationDestination(isPresented: $viewModel.showCheckout) {
-                CheckoutView()
+                CheckoutView(onOrderPlaced: {
+                    viewModel.showCheckout = false
+                    NotificationCenter.default.post(name: NSNotification.Name("SwitchToTrackingTab"), object: nil)
+                })
             }
         }
     }
@@ -69,7 +73,7 @@ public struct CartView: View {
     private var customNavBar: some View {
         HStack {
             Button(action: {
-                // Handle back (if not root)
+                NotificationCenter.default.post(name: NSNotification.Name("SwitchToHomeTab"), object: nil)
             }) {
                 ZStack {
                     Circle()
@@ -81,43 +85,30 @@ public struct CartView: View {
                 }
             }
             
-            Text("Checkout")
+            Text("Cart")
                 .font(.system(size: 18, weight: .bold))
                 .padding(.leading, 8)
             
             Spacer()
             
             HStack(spacing: 12) {
-                Button(action: {}) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 40, height: 40)
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.black)
-                            .font(.system(size: 16, weight: .bold))
+                if !viewModel.cartService.items.isEmpty {
+                    Button(action: {
+                        viewModel.cartService.clearCart()
+                        BlinkitTheme.triggerHaptic(.medium)
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 40, height: 40)
+                            Image(systemName: "trash.fill")
+                                .foregroundColor(.red)
+                                .font(.system(size: 16, weight: .bold))
+                        }
                     }
-                }
-                
-                Button(action: {
-                    viewModel.showGroupCart = true
-                    BlinkitTheme.triggerHaptic(.medium)
-                }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "cart.badge.plus")
-                            .font(.system(size: 14, weight: .bold))
-                        Text("Share")
-                            .font(.system(size: 14, weight: .bold))
-                    }
-                    .foregroundColor(.black)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(Color.white)
-                    .cornerRadius(20)
                 }
             }
-        }
-        .padding(.horizontal, 16)
+        }.padding(.horizontal, 16)
         .padding(.top, 8)
         .padding(.bottom, 8)
         .background(Color(uiColor: .systemGroupedBackground))
