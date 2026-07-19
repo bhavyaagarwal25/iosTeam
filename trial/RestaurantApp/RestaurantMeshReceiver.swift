@@ -298,11 +298,18 @@ extension RestaurantMeshReceiver: MCNearbyServiceAdvertiserDelegate {
 extension RestaurantMeshReceiver: MCNearbyServiceBrowserDelegate {
 
     public nonisolated func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
+        let currentPeerID = self.myPeerID
         Task { @MainActor in
             guard !session.connectedPeers.contains(peerID) else { return }
-            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
-            lastEvent = "Found '\(peerID.displayName)' — inviting…"
-            print("🔍 RestaurantReceiver: Found '\(peerID.displayName)' — inviting")
+            
+            // Prevent double-invites
+            if currentPeerID.hashValue > peerID.hashValue {
+                browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
+                lastEvent = "Found '\(peerID.displayName)' — inviting…"
+                print("🔍 RestaurantReceiver: Found '\(peerID.displayName)' — inviting")
+            } else {
+                print("🔍 RestaurantReceiver: Found '\(peerID.displayName)' — waiting for their invitation")
+            }
         }
     }
 

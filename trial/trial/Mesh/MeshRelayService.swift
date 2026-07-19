@@ -548,16 +548,23 @@ extension MeshRelayService: MCNearbyServiceBrowserDelegate {
         foundPeer peerID: MCPeerID,
         withDiscoveryInfo info: [String: String]?
     ) {
+        let currentPeerID = self.myPeerID
         Task { @MainActor in
             // Only invite if not already connected or connecting
             guard !session.connectedPeers.contains(peerID) else { return }
 
-            // context = nil for now; in production you'd include a pairing token
-            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
-            lastEvent = "Found peer '\(peerID.displayName)' — inviting…"
-            #if DEBUG
-            print("🔍 MeshRelay: Found '\(peerID.displayName)' — sent invitation")
-            #endif
+            // Prevent double-invites by only letting the peer with the larger hash send the invite
+            if currentPeerID.hashValue > peerID.hashValue {
+                browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
+                lastEvent = "Found peer '\(peerID.displayName)' — inviting…"
+                #if DEBUG
+                print("🔍 MeshRelay: Found '\(peerID.displayName)' — sent invitation")
+                #endif
+            } else {
+                #if DEBUG
+                print("🔍 MeshRelay: Found '\(peerID.displayName)' — waiting for their invitation")
+                #endif
+            }
         }
     }
 
