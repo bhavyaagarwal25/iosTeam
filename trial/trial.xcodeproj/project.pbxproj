@@ -42,24 +42,24 @@
 
 /* Begin PBXFileReference section */
 		108186C0300BB34700CED4A3 /* trial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = trial.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1747B5BED3C73CFBBC084608 /* IncomingOrderCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IncomingOrderCard.swift; path = /Users/bhavyaagarwal/iosTeam/trial/RestaurantApp/IncomingOrderCard.swift; sourceTree = "<absolute>"; };
+		1747B5BED3C73CFBBC084608 /* IncomingOrderCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IncomingOrderCard.swift; sourceTree = "<group>"; };
 		17CE086A7B7D015C756AB97F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		24EA3B25913B247C842B5A06 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		31407D176E23118D19E34C92 /* RestaurantApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RestaurantApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35B2E68ABF9E89B78B38E862 /* BlinkitTheme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BlinkitTheme.swift; path = trial/Resources/BlinkitTheme.swift; sourceTree = "<group>"; };
 		3F3CECB44C06D36132977EB6 /* OrderLiveActivityWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OrderLiveActivityWidget.swift; path = trial/LiveActivity/OrderLiveActivityWidget.swift; sourceTree = "<group>"; };
 		4B236B62864DC8EED2DA8D02 /* trialWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = trialWidgetBundle.swift; path = trialWidgetExtension/trialWidgetBundle.swift; sourceTree = "<group>"; };
-		6B9C8E8868E1CB86AC65548D /* KeychainService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeychainService.swift; path = /Users/bhavyaagarwal/iosTeam/trial/trial/Mesh/KeychainService.swift; sourceTree = "<absolute>"; };
-		7C12CB61904BB1C69FF2CE78 /* MeshAckPacket.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshAckPacket.swift; path = /Users/bhavyaagarwal/iosTeam/trial/RestaurantApp/MeshAckPacket.swift; sourceTree = "<absolute>"; };
-		86ED331E1FF65517009584E2 /* RestaurantRootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RestaurantRootView.swift; path = /Users/bhavyaagarwal/iosTeam/trial/RestaurantApp/RestaurantRootView.swift; sourceTree = "<absolute>"; };
-		8B7C8E3008EDB59CD4E3CA05 /* ZomatoCartItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ZomatoCartItem.swift; path = /Users/bhavyaagarwal/iosTeam/trial/trial/Models/ZomatoCartItem.swift; sourceTree = "<absolute>"; };
-		A67C57475134E76ACCB130A6 /* RestaurantMeshReceiver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RestaurantMeshReceiver.swift; path = /Users/bhavyaagarwal/iosTeam/trial/RestaurantApp/RestaurantMeshReceiver.swift; sourceTree = "<absolute>"; };
+		6B9C8E8868E1CB86AC65548D /* KeychainService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
+		7C12CB61904BB1C69FF2CE78 /* MeshAckPacket.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeshAckPacket.swift; sourceTree = "<group>"; };
+		86ED331E1FF65517009584E2 /* RestaurantRootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestaurantRootView.swift; sourceTree = "<group>"; };
+		8B7C8E3008EDB59CD4E3CA05 /* ZomatoCartItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ZomatoCartItem.swift; sourceTree = "<group>"; };
+		A67C57475134E76ACCB130A6 /* RestaurantMeshReceiver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestaurantMeshReceiver.swift; sourceTree = "<group>"; };
 		AB2537D1A368797F362FC8E7 /* BlinkitActivityAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BlinkitActivityAttributes.swift; path = trial/LiveActivity/BlinkitActivityAttributes.swift; sourceTree = "<group>"; };
-		CBF5CE6B9FD95DE427AA9686 /* OrderPacket.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OrderPacket.swift; path = /Users/bhavyaagarwal/iosTeam/trial/trial/Mesh/OrderPacket.swift; sourceTree = "<absolute>"; };
-		CBF61F56F57F8F71E8CE9C3A /* RestaurantApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RestaurantApp.swift; path = /Users/bhavyaagarwal/iosTeam/trial/RestaurantApp/RestaurantApp.swift; sourceTree = "<absolute>"; };
+		CBF5CE6B9FD95DE427AA9686 /* OrderPacket.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OrderPacket.swift; sourceTree = "<group>"; };
+		CBF61F56F57F8F71E8CE9C3A /* RestaurantApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestaurantApp.swift; sourceTree = "<group>"; };
 		DA1B2830303EF00EC7AA86F7 /* trialWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = trialWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		EDD348C39922CAC68FD92303 /* MeshPacketSigner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshPacketSigner.swift; path = /Users/bhavyaagarwal/iosTeam/trial/trial/Mesh/MeshPacketSigner.swift; sourceTree = "<absolute>"; };
-		FAF76929AC1B2B8AE547947F /* Restaurant.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Restaurant.swift; path = /Users/bhavyaagarwal/iosTeam/trial/trial/Models/Restaurant.swift; sourceTree = "<absolute>"; };
+		EDD348C39922CAC68FD92303 /* MeshPacketSigner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeshPacketSigner.swift; sourceTree = "<group>"; };
+		FAF76929AC1B2B8AE547947F /* Restaurant.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Restaurant.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -130,8 +130,8 @@
 				FAF76929AC1B2B8AE547947F /* Restaurant.swift */,
 			);
 			name = "Shared-Models";
-			path = /Users/bhavyaagarwal/iosTeam/trial/trial/Models;
-			sourceTree = "<absolute>";
+			path = trial/Models;
+			sourceTree = SOURCE_ROOT;
 		};
 		AD5ABF8456672E8AB0F4B178 /* Shared-Mesh */ = {
 			isa = PBXGroup;
@@ -141,8 +141,8 @@
 				EDD348C39922CAC68FD92303 /* MeshPacketSigner.swift */,
 			);
 			name = "Shared-Mesh";
-			path = /Users/bhavyaagarwal/iosTeam/trial/trial/Mesh;
-			sourceTree = "<absolute>";
+			path = trial/Mesh;
+			sourceTree = "<group>";
 		};
 		F13ADBE80DDC4C2058D3941D /* RestaurantApp */ = {
 			isa = PBXGroup;
@@ -154,8 +154,8 @@
 				7C12CB61904BB1C69FF2CE78 /* MeshAckPacket.swift */,
 			);
 			name = RestaurantApp;
-			path = /Users/bhavyaagarwal/iosTeam/trial/RestaurantApp;
-			sourceTree = "<absolute>";
+			path = RestaurantApp;
+			sourceTree = "<group>";
 		};
 		F43D26EF332C8B4F2E670FFC /* Frameworks */ = {
 			isa = PBXGroup;
@@ -514,7 +514,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2BNQ3FFD52;
+				DEVELOPMENT_TEAM = 229LDLFY2Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "RestaurantApp/RestaurantApp-Info.plist";
@@ -564,7 +564,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 2BNQ3FFD52;
+				DEVELOPMENT_TEAM = 229LDLFY2Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "RestaurantApp/RestaurantApp-Info.plist";
