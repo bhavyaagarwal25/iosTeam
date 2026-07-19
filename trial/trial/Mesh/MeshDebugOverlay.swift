@@ -187,55 +187,7 @@ public struct MeshDebugOverlay: View {
                         Divider().background(Color.white.opacity(0.15))
                     }
 
-                    // ── Demo Controls ─────────────────────────────────────
-                    Text("SIMULATE").font(.system(size: 8, weight: .bold)).foregroundColor(.gray)
 
-                    // Network state row (reuses existing NetworkMonitor sim)
-                    HStack(spacing: 5) {
-                        simButton("WiFi", color: .green) {
-                            network.simulateState(connected: true, constrained: false, expensive: false, type: .wifi)
-                        }
-                        simButton("Cell", color: .yellow) {
-                            network.simulateState(connected: true, constrained: false, expensive: true, type: .cellular)
-                        }
-                        simButton("Off", color: .red) {
-                            network.simulateState(connected: false, constrained: false, expensive: false, type: .none)
-                        }
-                    }
-
-                    // The hero demo button: simulate regained connectivity
-                    // This triggers MeshUploadService to flush all held packets
-                    Button {
-                        Task {
-                            network.simulateState(connected: true, constrained: false, expensive: false, type: .wifi)
-                            await upload.simulateConnectivityGained()
-                        }
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "wifi.circle.fill")
-                                .font(.system(size: 12))
-                            Text("Simulate Signal Regained")
-                                .font(.system(size: 10, weight: .bold))
-                        }
-                        .foregroundColor(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(Color.green)
-                        .clipShape(Capsule())
-                    }
-
-                    // Force a server error on next upload (to demo retry)
-                    Button {
-                        MockMeshBackend.shared.simulateNextCallFails = true
-                    } label: {
-                        Text("Simulate Server Error (next upload)")
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.orange)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 6)
-                            .background(Color.orange.opacity(0.15))
-                            .clipShape(Capsule())
-                    }
 
                     Divider().background(Color.white.opacity(0.15))
 
@@ -271,18 +223,6 @@ public struct MeshDebugOverlay: View {
             Text(value)
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .foregroundColor(color)
-        }
-    }
-
-    private func simButton(_ label: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(label)
-                .font(.system(size: 9, weight: .bold))
-                .foregroundColor(color)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(color.opacity(0.15))
-                .clipShape(Capsule())
         }
     }
 }
