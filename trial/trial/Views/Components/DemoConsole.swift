@@ -36,40 +36,28 @@ public struct DemoConsole: View {
     // MARK: - Floating Pill (always visible, minimal footprint)
 
     public var body: some View {
-        VStack {
-            Button {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    isSheetOpen = true
-                }
-            } label: {
-                HStack(spacing: 8) {
-                    // API call counter — the hero metric
-                    apiCounterChip
-
-                    // Network dot
-                    Circle()
-                        .fill(networkDotColor)
-                        .frame(width: 8, height: 8)
-
-                    // Peer count (mesh)
-                    if relay.isActive {
-                        HStack(spacing: 3) {
-                            Image(systemName: "antenna.radiowaves.left.and.right")
-                                .font(.system(size: 9, weight: .semibold))
-                                .foregroundColor(relay.connectedPeerNames.isEmpty ? .gray : .cyan)
-                            Text("\(relay.connectedPeerNames.count)")
-                                .font(.system(size: 11, weight: .black, design: .monospaced))
-                                .foregroundColor(relay.connectedPeerNames.isEmpty ? .gray : .cyan)
-                        }
-                    }
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 7)
-                .background(.regularMaterial)
-                .clipShape(Capsule())
-                .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 3)
-                .overlay(Capsule().stroke(Color.white.opacity(0.25), lineWidth: 0.5))
+        Button {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                isSheetOpen = true
             }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 12, weight: .bold))
+                
+                Text("\(api.apiCallCount)")
+                    .font(.system(size: 14, weight: .black, design: .monospaced))
+                
+                Circle()
+                    .fill(networkDotColor)
+                    .frame(width: 6, height: 6)
+                    .padding(.leading, 2)
+            }
+            .foregroundColor(.black)
+            .padding(.horizontal, 12)
+            .frame(height: 36)
+            .background(Capsule().fill(Color(red: 0.96, green: 0.82, blue: 0.15))) // Gold color to match Zomato
+            .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
         }
         .sheet(isPresented: $isSheetOpen) {
             consoleSheet
