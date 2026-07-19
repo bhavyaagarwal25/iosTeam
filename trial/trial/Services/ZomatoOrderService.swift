@@ -56,13 +56,36 @@ public class ZomatoOrderService: ObservableObject {
             paymentMethod: paymentMethod,
             couponCode: cartService.appliedCoupon?.code
         )
-        
+
         activeOrder = order
         pastOrders.insert(order, at: 0)
         cartService.clearCart()
-        
+
+        // ── ALWAYS broadcast to mesh peers ──────────────────────────────────
+        // The RestaurantApp listens on the same serviceType and needs EVERY
+        // order — not just offline ones. This runs unconditionally regardless
+        // of whether the customer device has internet.
+        Task { @MainActor in
+            do {
+                let packet = try MeshRelayService.shared.originatePacket(
+                    items: order.items,
+                    restaurantId: order.restaurantId,
+                    restaurantName: order.restaurantName,
+                    deliveryAddress: order.deliveryAddress
+                )
+                let hasPeers = !MeshRelayService.shared.connectedPeerNames.isEmpty
+                MeshOrderStatusManager.shared.registerAndUpdate(
+                    packet: packet,
+                    status: hasPeers ? .relayingNearby : .savedOnDevice
+                )
+                print("📡 ZomatoOrderService: Mesh packet \(packet.id.uuidString.prefix(8))… sent to \(MeshRelayService.shared.connectedPeerNames.count) peer(s)")
+            } catch {
+                print("⚠️  ZomatoOrderService: Mesh broadcast failed: \(error.localizedDescription)")
+            }
+        }
+
         if networkMonitor.isConnected {
-            // ONLINE FLOW: Start Live Activity and simulate normal backend progress
+            // ONLINE: Start Live Activity + stage progression
             liveActivityManager.startOrderTrackingActivity(
                 stageName: order.stage.rawValue,
                 etaMinutes: order.estimatedMinutes,
@@ -71,15 +94,14 @@ public class ZomatoOrderService: ObservableObject {
             )
             startStageSimulation()
         } else {
-            // OFFLINE FLOW: Enqueue locally and broadcast via Mesh Relay
+            // OFFLINE: Also enqueue for when connectivity returns
             OfflineOrderQueue.shared.enqueue(order: order)
         }
-        
+
         BlinkitTheme.triggerNotificationHaptic(.success)
-        
         return order
     }
-    
+
     public func advanceStage() {
         guard var order = activeOrder else { return }
         switch order.stage {

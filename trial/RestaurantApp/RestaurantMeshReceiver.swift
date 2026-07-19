@@ -314,24 +314,21 @@ extension RestaurantMeshReceiver: MCNearbyServiceAdvertiserDelegate {
 extension RestaurantMeshReceiver: MCNearbyServiceBrowserDelegate {
 
     public nonisolated func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
-        let currentPeerID = self.myPeerID
         Task { @MainActor in
             guard !session.connectedPeers.contains(peerID) else { return }
-            
-            // Prevent double-invites
-            if currentPeerID.hashValue > peerID.hashValue {
-                browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
-                lastEvent = "Found '\(peerID.displayName)' — inviting…"
-                print("🔍 RestaurantReceiver: Found '\(peerID.displayName)' — inviting")
-            } else {
-                print("🔍 RestaurantReceiver: Found '\(peerID.displayName)' — waiting for their invitation")
-            }
+            // Always invite — no tie-break. Restaurant and customer run different
+            // apps so there's no risk of a symmetrical double-invite loop.
+            // MPC internally handles simultaneous cross-invites by keeping one session.
+            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 30)
+            lastEvent = "Found '\(peerID.displayName)' — inviting…"
+            print("🔍 RestaurantReceiver: Found '\(peerID.displayName)' — inviting")
         }
     }
 
     public nonisolated func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         Task { @MainActor in
             lastEvent = "Lost peer '\(peerID.displayName)'"
+            print("👻 RestaurantReceiver: Lost sight of '\(peerID.displayName)'")
         }
     }
 

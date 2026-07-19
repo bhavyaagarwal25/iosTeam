@@ -23,20 +23,29 @@ public class ProfileViewModel: ObservableObject {
         self.orderService = OrderService.shared
         self.cartService = CartService.shared
         self.pastOrders = OrderService.shared.pastOrders
-        
-        self.runningLowProducts = [
-            MockData.sampleProducts[0],
-            MockData.sampleProducts[2],
-            MockData.sampleProducts[5]
-        ]
-        
+
+        // Derive running-low products from the items actually ordered most recently.
+        // Take the top 3 unique products from the last 5 past orders.
+        let recentItems = OrderService.shared.pastOrders
+            .prefix(5)
+            .flatMap { $0.items }
+            .map { $0.product }
+        var seen = Set<String>()
+        var unique: [Product] = []
+        for p in recentItems {
+            if seen.insert(p.id).inserted { unique.append(p) }
+            if unique.count == 3 { break }
+        }
+        // Fallback to sample products if order history is empty (first launch)
+        self.runningLowProducts = unique.isEmpty
+            ? [MockData.sampleProducts[0], MockData.sampleProducts[2], MockData.sampleProducts[5]]
+            : unique
+
         orderService.$pastOrders
             .assign(to: &$pastOrders)
-            
+
         cartService.objectWillChange
-            .sink { [weak self] _ in
-                self?.objectWillChange.send()
-            }
+            .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
     }
     

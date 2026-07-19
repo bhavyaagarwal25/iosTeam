@@ -118,7 +118,17 @@ public final class NetworkMonitor: ObservableObject {
                 }
                 
                 #if DEBUG
-                print("🌐 NetworkMonitor: connected=\(self.isConnected) constrained=\(self.isConstrained) expensive=\(self.isExpensive) type=\(self.connectionType.rawValue) → liteMode=\(self.isLiteMode)")
+                let liteReason: String
+                if let override = self.userOverrideLiteMode {
+                    liteReason = override ? "manual ON" : "manual OFF"
+                } else if !self.isConnected {
+                    liteReason = "no internet"
+                } else if self.isConstrained {
+                    liteReason = "Low Data Mode (Settings → Cellular → Low Data Mode)"
+                } else {
+                    liteReason = "off"
+                }
+                print("🌐 NetworkMonitor: connected=\(self.isConnected) constrained=\(self.isConstrained) expensive=\(self.isExpensive) type=\(self.connectionType.rawValue) → liteMode=\(self.isLiteMode) (\(liteReason))")
                 #endif
             }
         }
@@ -130,5 +140,19 @@ public final class NetworkMonitor: ObservableObject {
     deinit {
         monitor.cancel()
     }
-    
+
+    // MARK: - Demo Simulation
+
+    /// Simulate a specific network state for live demos.
+    /// Stops the real NWPathMonitor so simulated values persist until the app restarts.
+    public func simulateState(connected: Bool, constrained: Bool, expensive: Bool, type: ConnectionType) {
+        monitor.cancel()
+        isConnected = connected
+        isConstrained = constrained
+        isExpensive = expensive
+        connectionType = type
+        #if DEBUG
+        print("🎭 NetworkMonitor: Simulated → connected=\(connected) liteMode=\(isLiteMode) type=\(type.rawValue)")
+        #endif
+    }
 }

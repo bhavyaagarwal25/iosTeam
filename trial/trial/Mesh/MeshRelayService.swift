@@ -215,13 +215,20 @@ public final class MeshRelayService: NSObject, ObservableObject {
         // Publish so MeshUploadService can attempt immediate upload if online
         packetReceived.send(packet)
 
-        // Broadcast to all connected peers
-        broadcast(packet, excluding: nil)
-
-        lastEvent = "Originated order \(packet.id.uuidString.prefix(8))… for \(restaurantName)"
+        // Broadcast to ALL currently connected peers immediately.
+        // This covers the case where peers were already connected before the order was placed.
+        let connectedPeers = session.connectedPeers
+        if !connectedPeers.isEmpty {
+            send(packet, to: connectedPeers)
+            lastEvent = "Sent order \(packet.id.uuidString.prefix(8))… to \(connectedPeers.count) peer(s)"
+        } else {
+            // No peers yet — packet sits in heldPackets and will be sent
+            // via rebroadcastHeldPackets() when a peer connects.
+            lastEvent = "Order \(packet.id.uuidString.prefix(8))… saved — waiting for peers"
+        }
 
         #if DEBUG
-        print("📤 MeshRelay: Originated packet \(packet.id) — broadcasting to \(session.connectedPeers.count) peer(s)")
+        print("📤 MeshRelay: Originated packet \(packet.id) — sent to \(connectedPeers.count) peer(s), held for future peers")
         #endif
 
         return packet
@@ -548,23 +555,16 @@ extension MeshRelayService: MCNearbyServiceBrowserDelegate {
         foundPeer peerID: MCPeerID,
         withDiscoveryInfo info: [String: String]?
     ) {
-        let currentPeerID = self.myPeerID
         Task { @MainActor in
-            // Only invite if not already connected or connecting
+            // Skip peers already in the session
             guard !session.connectedPeers.contains(peerID) else { return }
-
-            // Prevent double-invites by only letting the peer with the larger hash send the invite
-            if currentPeerID.hashValue > peerID.hashValue {
-                browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
-                lastEvent = "Found peer '\(peerID.displayName)' — inviting…"
-                #if DEBUG
-                print("🔍 MeshRelay: Found '\(peerID.displayName)' — sent invitation")
-                #endif
-            } else {
-                #if DEBUG
-                print("🔍 MeshRelay: Found '\(peerID.displayName)' — waiting for their invitation")
-                #endif
-            }
+            // Always invite — MPC handles simultaneous cross-invites gracefully
+            // by keeping only one session between any pair of peers.
+            browser.invitePeer(peerID, to: session, withContext: nil, timeout: 30)
+            lastEvent = "Found peer '\(peerID.displayName)' — inviting…"
+            #if DEBUG
+            print("🔍 MeshRelay: Found '\(peerID.displayName)' — sent invitation")
+            #endif
         }
     }
 
