@@ -87,7 +87,6 @@ public struct DemoConsole: View {
                 Picker("", selection: $selectedTab) {
                     Label("Network", systemImage: "wifi").tag(0)
                     Label("Mesh", systemImage: "antenna.radiowaves.left.and.right").tag(1)
-                    Label("Actions", systemImage: "play.circle").tag(2)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal, 16)
@@ -100,8 +99,7 @@ public struct DemoConsole: View {
                     VStack(spacing: 16) {
                         switch selectedTab {
                         case 0:  networkTab
-                        case 1:  meshTab
-                        default: actionsTab
+                        default: meshTab
                         }
                     }
                     .padding(16)
@@ -143,18 +141,9 @@ public struct DemoConsole: View {
                 StatItem("Network", network.connectionType.rawValue,              networkDotColor),
                 StatItem("Cache",   cache.lastCacheResult,                        cache.lastCacheResult.contains("HIT") ? .green : .orange),
                 StatItem("Hits",    "\(cache.cacheHitCount)",                     .green),
-                StatItem("Misses",  "\(cache.cacheMissCount)",                    .red),
-                StatItem("Delay",   String(format: "%.1fs", network.simulatedDelay), .secondary)
+                StatItem("Misses",  "\(cache.cacheMissCount)",                    .red)
             ])
 
-            // Network simulation
-            sectionHeader("SIMULATE NETWORK")
-            HStack(spacing: 10) {
-                simChip("Wi-Fi", icon: "wifi",              color: .green)   { network.simulateState(connected: true,  constrained: false, expensive: false, type: .wifi) }
-                simChip("Cell",  icon: "antenna.radiowaves.left.and.right", color: .yellow) { network.simulateState(connected: true,  constrained: false, expensive: true,  type: .cellular) }
-                simChip("Low",   icon: "speedometer",       color: .orange)  { network.simulateState(connected: true,  constrained: true,  expensive: true,  type: .cellular) }
-                simChip("Off",   icon: "wifi.slash",        color: .red)     { network.simulateState(connected: false, constrained: false, expensive: false, type: .none) }
-            }
 
             // Reset
             HStack(spacing: 10) {
@@ -302,122 +291,6 @@ public struct DemoConsole: View {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // MARK: - Actions Tab (Demo Flow)
-    // ═══════════════════════════════════════════════════════════════
-
-    private var actionsTab: some View {
-        VStack(spacing: 14) {
-            sectionHeader("DEMO STORY — RUN IN ORDER")
-
-            // Step 1
-            demoStepCard(
-                step: "1",
-                title: "Simulate No Signal",
-                detail: "Sets network to fully offline. App switches to Lite mode automatically.",
-                color: .red,
-                buttonLabel: "Go Offline"
-            ) {
-                network.simulateState(connected: false, constrained: false, expensive: false, type: .none)
-            }
-
-            // Step 2
-            demoStepCard(
-                step: "2",
-                title: "Place an Order",
-                detail: "Go to Zomato → pick a restaurant → add items → checkout. The order is saved locally and broadcast to nearby mesh peers.",
-                color: .orange,
-                buttonLabel: nil,
-                action: {}
-            )
-
-            // Step 3
-            demoStepCard(
-                step: "3",
-                title: "Watch Relay",
-                detail: "On peer devices the held-packets counter (Mesh tab) increments. The packet travels hop by hop.",
-                color: .blue,
-                buttonLabel: nil,
-                action: {}
-            )
-
-            // Step 4 — THE HERO BUTTON
-            VStack(spacing: 10) {
-                HStack(spacing: 10) {
-                    ZStack {
-                        Circle().fill(Color.green.opacity(0.15)).frame(width: 32, height: 32)
-                        Text("4").font(.system(size: 15, weight: .black)).foregroundColor(.green)
-                    }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Signal Restored")
-                            .font(.system(size: 15, weight: .bold))
-                        Text("Any peer uploads the packet. Backend deduplicates.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                }
-
-                Button {
-                    Task {
-                        network.simulateState(connected: true, constrained: false, expensive: false, type: .wifi)
-                        await upload.simulateConnectivityGained()
-                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "wifi.circle.fill")
-                            .font(.system(size: 18))
-                        Text("Simulate Signal Regained")
-                            .font(.system(size: 15, weight: .bold))
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.green)
-                    .cornerRadius(12)
-                    .shadow(color: .green.opacity(0.4), radius: 8, x: 0, y: 4)
-                }
-            }
-            .padding(14)
-            .background(Color(.secondarySystemBackground))
-            .cornerRadius(14)
-
-            sectionHeader("EDGE CASES")
-
-            // Force server error
-            Button {
-                MockMeshBackend.shared.simulateNextCallFails = true
-            } label: {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle").foregroundColor(.orange)
-                    Text("Trigger Server Error (shows retry)")
-                        .font(.system(size: 14, weight: .medium))
-                    Spacer()
-                }
-                .foregroundColor(.primary)
-                .padding(14)
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(10)
-            }
-
-            // Cellular / Low Data Mode
-            Button {
-                network.simulateState(connected: true, constrained: true, expensive: true, type: .cellular)
-            } label: {
-                HStack {
-                    Image(systemName: "4g.alt").foregroundColor(.yellow)
-                    Text("Switch to Low Data Mode (Lite UI)")
-                        .font(.system(size: 14, weight: .medium))
-                    Spacer()
-                }
-                .foregroundColor(.primary)
-                .padding(14)
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(10)
-            }
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════════
     // MARK: - Reusable Sub-Views
     // ═══════════════════════════════════════════════════════════════
 
@@ -489,22 +362,6 @@ public struct DemoConsole: View {
         }
     }
 
-    private func simChip(_ label: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 14, weight: .semibold))
-                Text(label)
-                    .font(.system(size: 11, weight: .bold))
-            }
-            .foregroundColor(color)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
-            .background(color.opacity(0.12))
-            .cornerRadius(10)
-        }
-    }
-
     private func outlineButton(_ label: String, color: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(label)
@@ -516,40 +373,6 @@ public struct DemoConsole: View {
                 .cornerRadius(10)
                 .overlay(RoundedRectangle(cornerRadius: 10).stroke(color.opacity(0.3), lineWidth: 1))
         }
-    }
-
-    private func demoStepCard(
-        step: String, title: String, detail: String,
-        color: Color, buttonLabel: String?, action: @escaping () -> Void
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
-                ZStack {
-                    Circle().fill(color.opacity(0.15)).frame(width: 32, height: 32)
-                    Text(step).font(.system(size: 15, weight: .black)).foregroundColor(color)
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(.system(size: 15, weight: .bold))
-                    Text(detail).font(.system(size: 12)).foregroundColor(.secondary).lineLimit(3)
-                }
-                Spacer()
-            }
-            if let label = buttonLabel {
-                Button(action: action) {
-                    Text(label)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(color)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 9)
-                        .background(color.opacity(0.1))
-                        .cornerRadius(8)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(color.opacity(0.3), lineWidth: 1))
-                }
-            }
-        }
-        .padding(14)
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(14)
     }
 
     // MARK: - Colors

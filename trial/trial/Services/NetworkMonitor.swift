@@ -128,14 +128,4 @@ public final class NetworkMonitor: ObservableObject {
         monitor.cancel()
     }
     
-    // MARK: - Demo Helpers
-    
-    /// Force a specific network state for demo/testing purposes.
-    /// Useful when presenting to judges with Network Link Conditioner.
-    public func simulateState(connected: Bool, constrained: Bool, expensive: Bool, type: ConnectionType) {
-        self.isConnected = connected
-        self.isConstrained = constrained
-        self.isExpensive = expensive
-        self.connectionType = type
-    }
 }
