@@ -153,7 +153,6 @@
 				1747B5BED3C73CFBBC084608 /* IncomingOrderCard.swift */,
 				7C12CB61904BB1C69FF2CE78 /* MeshAckPacket.swift */,
 			);
-			name = RestaurantApp;
 			path = RestaurantApp;
 			sourceTree = "<group>";
 		};
@@ -457,7 +456,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9BQV3SB9Z8;
+				DEVELOPMENT_TEAM = 229LDLFY2Y;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "trial/trial-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.3;
@@ -485,7 +484,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9BQV3SB9Z8;
+				DEVELOPMENT_TEAM = 229LDLFY2Y;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = "trial/trial-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.3;
@@ -543,10 +542,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				DEVELOPMENT_TEAM = 9BQV3SB9Z8;
+				DEVELOPMENT_TEAM = 229LDLFY2Y;
 				INFOPLIST_FILE = trialWidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
-				PRODUCT_BUNDLE_IDENTIFIER = deeeebhaiiiiivviiii;
+				PRODUCT_BUNDLE_IDENTIFIER = deeeebhaiiiiivviiiiprriiii.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -591,10 +590,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				DEVELOPMENT_TEAM = 9BQV3SB9Z8;
+				DEVELOPMENT_TEAM = 229LDLFY2Y;
 				INFOPLIST_FILE = trialWidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
-				PRODUCT_BUNDLE_IDENTIFIER = deeeebhaiiiiivviiii;
+				PRODUCT_BUNDLE_IDENTIFIER = deeeebhaiiiiivviiiiprriiii.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
