@@ -158,15 +158,21 @@ public final class RestaurantMeshReceiver: NSObject, ObservableObject {
     // MARK: - Receive Pipeline
 
     private func handleIncomingData(_ data: Data, from sender: MCPeerID) {
-        // Peek at the type byte
-        guard let msgType = meshMessageType(from: data) else { return }
-
-        switch msgType {
-        case .orderPacket:
+        // Peek at the type byte — MeshRelayService sends raw EncryptedEnvelope
+        // (no type prefix, legacy format). RestaurantMeshReceiver handles both:
+        //   • 0x01 prefix  → new-format OrderPacket
+        //   • 0x02 prefix  → AckPacket (we ignore — restaurant doesn't receive acks)
+        //   • no prefix    → legacy raw EncryptedEnvelope from MeshRelayService
+        if let msgType = meshMessageType(from: data) {
+            switch msgType {
+            case .orderPacket:
+                handleIncomingOrder(data, from: sender)
+            case .ackPacket:
+                break // Restaurant doesn't process acks
+            }
+        } else {
+            // Legacy / no-prefix format — treat as an order packet directly
             handleIncomingOrder(data, from: sender)
-        case .ackPacket:
-            // Restaurant doesn't process acks — those go back to the customer
-            break
         }
     }
 
