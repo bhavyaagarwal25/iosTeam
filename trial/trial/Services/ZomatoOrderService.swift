@@ -61,17 +61,20 @@ public class ZomatoOrderService: ObservableObject {
         pastOrders.insert(order, at: 0)
         cartService.clearCart()
         
-        // 🆕 ETERNAL LITE: Start Live Activity instead of polling
-        // This is the key optimization — the Dynamic Island shows order progress
-        // WITHOUT the app needing to poll the server.
-        liveActivityManager.startOrderTrackingActivity(
-            stageName: order.stage.rawValue,
-            etaMinutes: order.estimatedMinutes,
-            riderName: order.riderName,
-            progress: order.stage.progressValue
-        )
+        if networkMonitor.isConnected {
+            // ONLINE FLOW: Start Live Activity and simulate normal backend progress
+            liveActivityManager.startOrderTrackingActivity(
+                stageName: order.stage.rawValue,
+                etaMinutes: order.estimatedMinutes,
+                riderName: order.riderName,
+                progress: order.stage.progressValue
+            )
+            startStageSimulation()
+        } else {
+            // OFFLINE FLOW: Enqueue locally and broadcast via Mesh Relay
+            OfflineOrderQueue.shared.enqueue(order: order)
+        }
         
-        startStageSimulation()
         BlinkitTheme.triggerNotificationHaptic(.success)
         
         return order
