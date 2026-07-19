@@ -129,25 +129,7 @@ public struct DebugOverlay: View {
                         .foregroundColor(.orange)
                     }
                     
-                    Divider().background(Color.white.opacity(0.2))
-                    
-                    // Simulate network conditions
-                    Text("SIMULATE").font(.system(size: 8, weight: .bold)).foregroundColor(.gray)
-                    
-                    HStack(spacing: 6) {
-                        simButton("WiFi", color: .green) {
-                            networkMonitor.simulateState(connected: true, constrained: false, expensive: false, type: .wifi)
-                        }
-                        simButton("Cell", color: .yellow) {
-                            networkMonitor.simulateState(connected: true, constrained: false, expensive: true, type: .cellular)
-                        }
-                        simButton("Low", color: .orange) {
-                            networkMonitor.simulateState(connected: true, constrained: true, expensive: true, type: .cellular)
-                        }
-                        simButton("Off", color: .red) {
-                            networkMonitor.simulateState(connected: false, constrained: false, expensive: false, type: .none)
-                        }
-                    }
+
                 }
                 .padding(12)
                 .background(.ultraThinMaterial)
@@ -185,18 +167,6 @@ public struct DebugOverlay: View {
             Text(value)
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .foregroundColor(valueColor)
-        }
-    }
-    
-    private func simButton(_ label: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(label)
-                .font(.system(size: 9, weight: .bold))
-                .foregroundColor(color)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(color.opacity(0.15))
-                .clipShape(Capsule())
         }
     }
 }
