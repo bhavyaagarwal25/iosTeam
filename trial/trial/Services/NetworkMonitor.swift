@@ -54,7 +54,10 @@ public final class NetworkMonitor: ObservableObject {
         if let override = userOverrideLiteMode {
             return override
         }
-        return isConstrained || isExpensive || !isConnected
+        // Lite Mode ONLY triggers if the user specifically turned on "Low Data Mode" 
+        // in iOS settings (isConstrained), or if there is no internet at all.
+        // It no longer triggers just for being on Cellular (isExpensive).
+        return isConstrained || !isConnected
     }
     
     /// Simulated network delay for mock API calls (longer on bad networks)

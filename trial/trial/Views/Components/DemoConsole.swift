@@ -27,6 +27,7 @@ public struct DemoConsole: View {
     @StateObject private var relay    = MeshRelayService.shared
     @StateObject private var upload   = MeshUploadService.shared
     @StateObject private var status   = MeshOrderStatusManager.shared
+    @StateObject private var offline  = OfflineOrderQueue.shared
 
     @State private var isSheetOpen    = false
     @State private var selectedTab    = 0          // 0=Network, 1=Mesh, 2=Actions
@@ -126,14 +127,25 @@ public struct DemoConsole: View {
     private var networkTab: some View {
         VStack(spacing: 12) {
             // Hero metric
-            heroCard(
-                value: "\(api.apiCallCount)",
-                label: "API Calls This Session",
-                subtitle: api.apiCallCount <= 1 ? "✓ Batched (Eternal Lite)" : "Traditional mode",
-                valueColor: api.apiCallCount <= 2 ? .green : .red,
-                icon: "bolt.fill",
-                iconColor: api.apiCallCount <= 2 ? .green : .red
-            )
+            HStack(spacing: 12) {
+                heroCard(
+                    value: "\(api.apiCallCount)",
+                    label: "API (Internet)",
+                    subtitle: api.apiCallCount <= 1 ? "Batched" : "Traditional",
+                    valueColor: api.apiCallCount <= 2 ? .green : .red,
+                    icon: "wifi",
+                    iconColor: api.apiCallCount <= 2 ? .green : .red
+                )
+                
+                heroCard(
+                    value: "\(offline.queuedOrders.count)",
+                    label: "Offline (Mesh)",
+                    subtitle: "Zero-internet orders",
+                    valueColor: .orange,
+                    icon: "antenna.radiowaves.left.and.right",
+                    iconColor: .orange
+                )
+            }
 
             // Status grid
             statsGrid([
