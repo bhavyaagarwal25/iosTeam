@@ -241,18 +241,43 @@ public final class RestaurantMeshReceiver: NSObject, ObservableObject {
             estimatedPrepMinutes: 20
         )
 
+        // Try sending immediately, then retry once after 1s if the peer isn't
+        // connected yet (MPC sometimes reports the peer as disconnected briefly
+        // right after delivering data, then reconnects within milliseconds).
+        attemptSendAck(ack, to: peer, for: packet.id)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            self?.attemptSendAck(ack, to: peer, for: packet.id)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+            self?.attemptSendAck(ack, to: peer, for: packet.id)
+        }
+    }
+
+    private func attemptSendAck(_ ack: MeshAckPacket, to peer: MCPeerID, for orderId: UUID) {
+        // Prefer the specific peer, fall back to all connected peers
+        let connectedPeers = session.connectedPeers
+        let targets: [MCPeerID]
+        if connectedPeers.contains(peer) {
+            targets = [peer]
+        } else if !connectedPeers.isEmpty {
+            // Peer reconnected under a different reference or MPC coalesced — send to all
+            targets = connectedPeers
+        } else {
+            print("⏳ RestaurantReceiver: Ack for \(orderId.uuidString.prefix(8)) deferred — no connected peers yet")
+            return
+        }
+
         do {
-            // Encode with type prefix so customer app can route correctly
             let data = try encodeMeshMessage(ack, type: .ackPacket)
-            try session.send(data, toPeers: [peer], with: .reliable)
-            print("✅ RestaurantReceiver: Sent ack for order \(packet.id.uuidString.prefix(8)) to '\(peer.displayName)'")
+            try session.send(data, toPeers: targets, with: .reliable)
+            print("✅ RestaurantReceiver: Sent ack for order \(orderId.uuidString.prefix(8)) to \(targets.map(\.displayName))")
 
             // Mark as acknowledged in our list
-            if let idx = receivedOrders.firstIndex(where: { $0.id == packet.id }) {
+            if let idx = receivedOrders.firstIndex(where: { $0.id == orderId }) {
                 receivedOrders[idx].isAcknowledged = true
             }
         } catch {
-            print("❌ RestaurantReceiver: Failed to send ack: \(error.localizedDescription)")
+            print("⚠️ RestaurantReceiver: Ack attempt failed for \(orderId.uuidString.prefix(8)): \(error.localizedDescription)")
         }
     }
 

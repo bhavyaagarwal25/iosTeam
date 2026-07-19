@@ -61,6 +61,10 @@ public final class MeshRelayService: NSObject, ObservableObject {
     /// Packets this device is currently holding (originated or relayed, not yet uploaded)
     @Published public private(set) var heldPackets: [OrderPacket] = []
 
+    /// Tracks (packetId, peerDisplayName) pairs already sent — prevents rebroadcast
+    /// from re-delivering packets that originatePacket already sent to a peer.
+    private var sentDeliveries = Set<String>()
+
     /// Whether the mesh is actively advertising + browsing
     @Published public private(set) var isActive: Bool = false
 
@@ -242,6 +246,8 @@ public final class MeshRelayService: NSObject, ObservableObject {
     /// Removes it from heldPackets so it stops being relayed.
     public func markUploaded(packetId: UUID) {
         heldPackets.removeAll { $0.id == packetId }
+        // Clean up delivery tracking for this packet
+        sentDeliveries = sentDeliveries.filter { !$0.hasPrefix("\(packetId)|") }
         lastEvent = "Packet \(packetId.uuidString.prefix(8))… confirmed ✓"
         #if DEBUG
         print("✅ MeshRelay: Packet \(packetId) uploaded — removed from held set")
@@ -256,12 +262,20 @@ public final class MeshRelayService: NSObject, ObservableObject {
     /// This handles the case where Device B reconnects after being offline —
     /// Device A immediately transfers everything it's holding.
     private func rebroadcastHeldPackets(to peer: MCPeerID) {
-        guard !heldPackets.isEmpty else { return }
-        for packet in heldPackets {
+        let unsent = heldPackets.filter {
+            !sentDeliveries.contains("\($0.id)|\(peer.displayName)")
+        }
+        guard !unsent.isEmpty else {
+            #if DEBUG
+            print("📤 MeshRelay: No new packets to send to '\(peer.displayName)' — all already delivered")
+            #endif
+            return
+        }
+        for packet in unsent {
             send(packet, to: [peer])
         }
         #if DEBUG
-        print("📤 MeshRelay: Sent \(heldPackets.count) held packet(s) to new peer '\(peer.displayName)'")
+        print("📤 MeshRelay: Sent \(unsent.count) held packet(s) to new peer '\(peer.displayName)'")
         #endif
     }
 
@@ -285,6 +299,10 @@ public final class MeshRelayService: NSObject, ObservableObject {
             let data = try encoder.encode(envelope)
             // .reliable = TCP-like delivery guarantee over MPC transport
             try session.send(data, toPeers: peers, with: .reliable)
+            // Record delivery so rebroadcast doesn't re-send to the same peer
+            for peer in peers {
+                sentDeliveries.insert("\(packet.id)|\(peer.displayName)")
+            }
             #if DEBUG
             print("📤 MeshRelay: Sent envelope \(packet.id.uuidString.prefix(8))… to \(peers.map(\.displayName))")
             #endif
