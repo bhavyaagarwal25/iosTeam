@@ -24,17 +24,13 @@ public struct ContentView: View {
     
     @State private var selectedTab: Int = 0
     @State private var isZomatoMode: Bool = false
-    @State private var isRestaurantMode: Bool = false
     @State private var showProofScreen: Bool = false
     
     public init() {}
     
     public var body: some View {
         ZStack(alignment: .bottom) {
-            if isRestaurantMode {
-                // Restaurant Dashboard Mode (receives orders via mesh)
-                RestaurantDashboardView()
-            } else if isZomatoMode {
+            if isZomatoMode {
                 // Zomato Mode (Handles its own views & Zomato floating capsule tab bar)
                 ZomatoHomeView()
             } else {
@@ -117,7 +113,7 @@ public struct ContentView: View {
         }
     }
     
-    // MARK: - App Switcher Button (3-mode: Customer/Zomato/Restaurant + Proof Screen)
+    // MARK: - App Switcher Button (2-mode: Customer/Zomato + Proof Screen)
     private var appSwitcherButton: some View {
         VStack {
             Spacer()
@@ -142,71 +138,27 @@ public struct ContentView: View {
                     }
                 }
                 
-                // Mode switcher menu
-                Menu {
-                    Button(action: {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                            isZomatoMode = false
-                            isRestaurantMode = false
-                            selectedTab = 0
-                        }
-                    }) {
-                        Label("Customer (Blinkit)", systemImage: "cart.fill")
+                Button(action: {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        isZomatoMode.toggle()
+                        selectedTab = 0
                     }
-                    
-                    Button(action: {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                            isZomatoMode = true
-                            isRestaurantMode = false
-                        }
-                    }) {
-                        Label("Customer (Zomato)", systemImage: "fork.knife")
-                    }
-                    
-                    Divider()
-                    
-                    Button(action: {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                            isRestaurantMode = true
-                            isZomatoMode = false
-                        }
-                    }) {
-                        Label("Restaurant Dashboard", systemImage: "storefront.fill")
-                    }
-                } label: {
+                }) {
                     HStack(spacing: 6) {
-                        Image(systemName: currentModeIcon)
-                        Text(currentModeLabel)
+                        Image(systemName: isZomatoMode ? "cart.fill" : "fork.knife")
+                        Text(isZomatoMode ? "Blinkit" : "Zomato")
                             .fontWeight(.bold)
                     }
                     .font(.system(size: 13))
                     .foregroundColor(.white)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
-                    .background(currentModeColor)
+                    .background(isZomatoMode ? Color(red: 0.05, green: 0.52, blue: 0.12) : Color(red: 0.9, green: 0.1, blue: 0.2))
                     .clipShape(Capsule())
                     .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 4)
                 }
             }
         }
-    }
-    
-    private var currentModeIcon: String {
-        if isRestaurantMode { return "storefront.fill" }
-        if isZomatoMode { return "fork.knife" }
-        return "cart.fill"
-    }
-    
-    private var currentModeLabel: String {
-        if isRestaurantMode { return "Restaurant" }
-        if isZomatoMode { return "Zomato" }
-        return "Blinkit"
-    }
-    
-    private var currentModeColor: Color {
-        if isRestaurantMode { return Color.orange }
-        if isZomatoMode { return Color(red: 0.9, green: 0.1, blue: 0.2) }
-        return Color(red: 0.05, green: 0.52, blue: 0.12)
     }
 }
 
