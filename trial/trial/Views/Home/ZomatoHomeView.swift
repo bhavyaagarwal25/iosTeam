@@ -16,6 +16,7 @@ public struct ZomatoHomeView: View {
     @StateObject private var meshStatus = MeshOrderStatusManager.shared
     @State private var showSearch = false
     @State private var showCart = false
+
     @State private var showProfile = false
     @State private var litePayload: AggregatedPayload? = nil
     
@@ -378,17 +379,18 @@ public struct ZomatoHomeView: View {
     // MARK: - Search Bar
     private var searchBar: some View {
         HStack(spacing: 12) {
-            Button(action: { showSearch = true }) {
-                HStack {
-                    Image(systemName: "magnifyingglass").foregroundColor(.red).font(.system(size: 18, weight: .semibold))
-                    Text("Search \"binge night\"").font(.system(size: 16)).foregroundColor(.gray)
-                    Spacer()
-                    Image(systemName: "mic.fill").foregroundColor(.red).font(.system(size: 18))
+            HStack {
+                Button(action: { showSearch = true }) {
+                    HStack {
+                        Image(systemName: "magnifyingglass").foregroundColor(.red).font(.system(size: 18, weight: .semibold))
+                        Text("Search \"binge night\"").font(.system(size: 16)).foregroundColor(.gray)
+                        Spacer()
+                    }
                 }
-                .padding(.horizontal, 14).padding(.vertical, 12)
-                .background(Color.white).cornerRadius(14)
-                .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 2)
             }
+            .padding(.horizontal, 14).padding(.vertical, 12)
+            .background(Color.white).cornerRadius(14)
+            .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 2)
             
             VStack(spacing: 3) {
                 Text("VEG").font(.system(size: 9, weight: .heavy)).foregroundColor(.white)

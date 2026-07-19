@@ -32,7 +32,7 @@ public struct QuantityStepperView: View {
             Text("\(quantity)")
                 .font(.system(size: 14, weight: .bold))
                 .foregroundColor(.white)
-                .contentTransition(.numericText())
+                .frame(minWidth: 16, alignment: .center)
             
             Button(action: onIncrement) {
                 Image(systemName: "plus")

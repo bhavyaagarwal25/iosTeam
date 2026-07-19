@@ -17,10 +17,18 @@ public class ZomatoRestaurantViewModel: ObservableObject {
     @Published public var customizationGroups: [CustomizationGroup] = []
     
     public let cartService: ZomatoCartService
+    private var cancellables = Set<AnyCancellable>()
     
     public init(restaurant: Restaurant) {
         self.restaurant = restaurant
         self.cartService = ZomatoCartService.shared
+        
+        // Forward cart updates so the UI re-renders when quantity changes (fixes minus button issue)
+        self.cartService.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Menu Sections
@@ -57,13 +65,8 @@ public class ZomatoRestaurantViewModel: ObservableObject {
     // MARK: - Cart Operations
     
     public func prepareCustomization(for item: MenuItem) {
-        selectedMenuItem = item
-        if item.isCustomisable && !item.customizationGroups.isEmpty {
-            customizationGroups = item.customizationGroups
-            showCustomizationSheet = true
-        } else {
-            addToCartDirectly(item)
-        }
+        // Bypass customization sheet to match Blinkit's instant 1-tap ADD feel
+        addToCartDirectly(item)
     }
     
     public func addToCartDirectly(_ item: MenuItem) {

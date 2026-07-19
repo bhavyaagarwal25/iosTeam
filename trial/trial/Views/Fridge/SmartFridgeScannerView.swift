@@ -65,6 +65,27 @@ public struct SmartFridgeScannerView: View {
                     .foregroundColor(BlinkitTheme.brandGreen)
                 }
             }
+            .overlay(alignment: .top) {
+                NotificationBannerView(
+                    title: "Smart Fridge Alert",
+                    subtitle: "Milk and Bread are running low! Tap to add to cart and checkout.",
+                    action: {
+                        // Fast-track add to cart
+                        let itemsToAdd = ["milk", "bread"]
+                        let cartService = CartService.shared
+                        
+                        for itemName in itemsToAdd {
+                            if let product = MockData.sampleProducts.first(where: { $0.name.lowercased() == itemName }) {
+                                cartService.addToCart(product: product)
+                            }
+                        }
+                        
+                        // Dismiss and go to Cart
+                        dismiss()
+                        onRedirectToCart?()
+                    }
+                )
+            }
         }
     }
     

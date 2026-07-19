@@ -14,6 +14,7 @@ public struct HomeView: View {
     @State private var showPantryScanner: Bool = false
     @State private var showFridgeScanner: Bool = false
     @State private var navigateToProfile: Bool = false
+    @ObservedObject private var cartService = CartService.shared
     
     public var onRedirectToCart: (() -> Void)? = nil
     
@@ -37,9 +38,7 @@ public struct HomeView: View {
                         
                         // Search Bar Button
                         searchBarButton
-                        
-                        // Time-of-Day Context Greeting Banner
-                        contextBannerView
+
                         
                         // Category Scroll View
                         CategoryCarouselView(
@@ -74,8 +73,8 @@ public struct HomeView: View {
                                             ProductCardView(
                                                 product: product,
                                                 cartQuantity: getQuantity(for: product),
-                                                onAdd: { viewModel.cartService.addToCart(product: product) },
-                                                onIncrement: { viewModel.cartService.addToCart(product: product) },
+                                                onAdd: { cartService.addToCart(product: product) },
+                                                onIncrement: { cartService.addToCart(product: product) },
                                                 onDecrement: { updateQty(product: product, delta: -1) }
                                             )
                                             .frame(width: 155)
@@ -100,8 +99,8 @@ public struct HomeView: View {
                                     ProductCardView(
                                         product: product,
                                         cartQuantity: getQuantity(for: product),
-                                        onAdd: { viewModel.cartService.addToCart(product: product) },
-                                        onIncrement: { viewModel.cartService.addToCart(product: product) },
+                                        onAdd: { cartService.addToCart(product: product) },
+                                        onIncrement: { cartService.addToCart(product: product) },
                                         onDecrement: { updateQty(product: product, delta: -1) }
                                     )
                                     .onTapGesture {
@@ -122,7 +121,7 @@ public struct HomeView: View {
                 }
                 
                 // Persistent Floating Cart Bar
-                if viewModel.cartService.totalItemCount > 0 {
+                if cartService.totalItemCount > 0 {
                     floatingCartBar
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
@@ -208,62 +207,50 @@ public struct HomeView: View {
     
     // Search Bar Button
     private var searchBarButton: some View {
-        Button(action: {
-            navigateToSearch = true
-            BlinkitTheme.triggerHaptic(.light)
-        }) {
-            HStack(spacing: 10) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.secondary)
-                    .font(.system(size: 16, weight: .semibold))
-                Text("Search 'Amul milk', 'Maggi', 'Atta'...")
-                    .foregroundColor(.secondary)
-                    .font(.system(size: 14))
-                Spacer()
+        HStack(spacing: 10) {
+            Button(action: {
+                navigateToSearch = true
+                BlinkitTheme.triggerHaptic(.light)
+            }) {
+                HStack(spacing: 10) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("Search 'Amul milk', 'Maggi'...")
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 14))
+                    Spacer()
+                }
+            }
+            .buttonStyle(.plain)
+            
+            Divider()
+                .frame(height: 20)
+            
+            Button(action: {
+                showPantryScanner = true
+                BlinkitTheme.triggerHaptic(.light)
+            }) {
+                Image(systemName: "camera.viewfinder")
+                    .foregroundColor(BlinkitTheme.brandGreen)
+                    .font(.system(size: 18, weight: .semibold))
+            }
+            
+            Button(action: {
+                // Mic button remains for consistency
+            }) {
                 Image(systemName: "mic.fill")
                     .foregroundColor(.secondary)
-                    .font(.system(size: 14))
+                    .font(.system(size: 18))
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .background(Color(uiColor: .secondarySystemBackground))
-            .cornerRadius(12)
         }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(Color(uiColor: .secondarySystemBackground))
+        .cornerRadius(12)
         .padding(.horizontal, 16)
     }
-    
-    // Context Greeting Banner
-    private var contextBannerView: some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.contextInfo.greetingTitle)
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(BlinkitTheme.textPrimaryLight)
-                Text(viewModel.contextInfo.greetingSubtitle)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(BlinkitTheme.textSecondaryLight)
-            }
-            Spacer()
-            
-            Image(systemName: viewModel.contextInfo.bannerIcon)
-                .font(.system(size: 32))
-                .foregroundColor(BlinkitTheme.brandGreen)
-        }
-        .padding(16)
-        .background(
-            LinearGradient(
-                colors: [BlinkitTheme.yellow.opacity(0.35), BlinkitTheme.yellow.opacity(0.1)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(BlinkitTheme.yellow.opacity(0.4), lineWidth: 1)
-        )
-        .padding(.horizontal, 16)
-    }
+
     
     // Floating Cart Bar
     private var floatingCartBar: some View {
@@ -277,13 +264,13 @@ public struct HomeView: View {
                         Circle()
                             .fill(Color.white.opacity(0.25))
                             .frame(width: 32, height: 32)
-                        Text("\(viewModel.cartService.totalItemCount)")
+                        Text("\(cartService.totalItemCount)")
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(.white)
                     }
                     
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("₹\(Int(viewModel.cartService.grandTotal))")
+                        Text("₹\(Int(cartService.grandTotal))")
                             .font(.system(size: 15, weight: .bold))
                             .foregroundColor(.white)
                         Text("TOTAL BILL")
@@ -309,19 +296,19 @@ public struct HomeView: View {
             .cornerRadius(16)
             .shadow(color: BlinkitTheme.brandGreen.opacity(0.4), radius: 10, x: 0, y: 5)
             .padding(.horizontal, 16)
-            .padding(.bottom, 12)
+            .padding(.bottom, 86)
         }
     }
     
     private func getQuantity(for product: Product) -> Int {
-        viewModel.cartService.items
+        cartService.items
             .filter { $0.product.id == product.id }
             .reduce(0) { $0 + $1.quantity }
     }
     
     private func updateQty(product: Product, delta: Int) {
-        if let item = viewModel.cartService.items.first(where: { $0.product.id == product.id }) {
-            viewModel.cartService.updateQuantity(for: item.id, quantity: item.quantity + delta)
+        if let item = cartService.items.first(where: { $0.product.id == product.id }) {
+            cartService.updateQuantity(for: item.id, quantity: item.quantity + delta)
         }
     }
 }
