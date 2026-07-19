@@ -526,7 +526,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bhavy1a.restaurantapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bhavy12a.restaurantapp;
 				PRODUCT_NAME = RestaurantApp;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -574,7 +574,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bhavy1a.restaurantapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bhavy12a.restaurantapp;
 				PRODUCT_NAME = RestaurantApp;
 				SDKROOT = iphoneos;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;

@@ -120,7 +120,9 @@ public struct RestaurantRootView: View {
             Spacer()
             
             if receiver.connectedCustomerNames.isEmpty {
-                SpinningLoaderView(tintColor: zomatoRed)
+                ProgressView()
+                    .controlSize(.large)
+                    .tint(zomatoRed)
             } else {
                 Image(systemName: "bell.slash")
                     .font(.system(size: 64))
@@ -222,96 +224,5 @@ public struct RestaurantRootView: View {
                     }
                 }
             }
-    }
-}
-
-// MARK: - Animations
-
-enum RotationDegrees {
-    case initialCicle
-    case middleCircle
-    case initialSmallCircle
-    case middleSmallCircle
-    case last
-
-    func getRotationDegrees() -> Angle {
-        switch self {
-        case .initialCicle: return .degrees(365)
-        case .initialSmallCircle: return .degrees(679)
-        case .middleCircle: return .degrees(375)
-        case .middleSmallCircle: return .degrees(825)
-        case .last: return .degrees(990)
-        }
-    }
-}
-
-struct SpinningLoaderView: View {
-    var tintColor: Color = .blue
-    
-    @State private var circleEnd: CGFloat = 0.001
-    @State private var rotationDegree: Angle = .degrees(-90)
-    
-    @State private var smallerCircleEnd: CGFloat = 1
-    @State private var smallerRotationDegree: Angle = .degrees(-30)
-    
-    private let animationDuration: Double = 1.35
-    
-    var body: some View {
-        ZStack {
-            Circle()
-                .trim(from: 0, to: circleEnd)
-                .stroke(style: StrokeStyle(lineWidth: 18, lineCap: .round))
-                .foregroundColor(tintColor)
-                .rotationEffect(rotationDegree)
-                .frame(width: 130, height: 130)
-
-            Circle()
-                .trim(from: 0, to: smallerCircleEnd)
-                .stroke(style: StrokeStyle(lineWidth: 18, lineCap: .round))
-                .foregroundColor(tintColor.opacity(0.7))
-                .rotationEffect(smallerRotationDegree)
-                .frame(width: 48, height: 48)
-        }
-        .onAppear {
-            animate()
-            Timer.scheduledTimer(withTimeInterval: animationDuration * 1.98, repeats: true) { _ in
-                reset()
-                animate()
-            }
-        }
-    }
-    
-    func animate() {
-        withAnimation(.easeOut(duration: animationDuration)) {
-            circleEnd = 1
-        }
-        withAnimation(.easeOut(duration: animationDuration * 1.1)) {
-            rotationDegree = RotationDegrees.initialCicle.getRotationDegrees()
-        }
-        withAnimation(.easeOut(duration: animationDuration * 0.85)) {
-            smallerCircleEnd = 0.001
-            smallerRotationDegree = RotationDegrees.initialSmallCircle.getRotationDegrees()
-        }
-        Timer.scheduledTimer(withTimeInterval: animationDuration * 0.7, repeats: false) { _ in
-            withAnimation(.easeIn(duration: animationDuration * 0.4)) {
-                smallerRotationDegree = RotationDegrees.middleSmallCircle.getRotationDegrees()
-                rotationDegree = RotationDegrees.middleCircle.getRotationDegrees()
-            }
-        }
-        Timer.scheduledTimer(withTimeInterval: animationDuration, repeats: false) { _ in
-            withAnimation(.easeOut(duration: animationDuration)) {
-                rotationDegree = RotationDegrees.last.getRotationDegrees()
-                circleEnd = 0.001
-            }
-            withAnimation(.linear(duration: animationDuration * 0.8)) {
-                smallerCircleEnd = 1
-                smallerRotationDegree = RotationDegrees.last.getRotationDegrees()
-            }
-        }
-    }
-    
-    func reset() {
-        rotationDegree = .degrees(-90)
-        smallerRotationDegree = .degrees(-30)
     }
 }
