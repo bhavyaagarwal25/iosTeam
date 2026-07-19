@@ -139,6 +139,22 @@ public final class RestaurantMeshReceiver: NSObject, ObservableObject {
         lastEvent = "Stopped"
     }
 
+    public func clearOrders() {
+        receivedOrders.removeAll()
+        seenOrderIDs.removeAll()
+        lastEvent = "Cleared all orders"
+    }
+
+    public func restartMesh() {
+        stopListening()
+        // Adding a slight delay allows the Multipeer sockets to clean up
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            self?.buildSession() // Rebuild session completely to fix bad state
+            self?.startListening()
+            self?.lastEvent = "Mesh restarted"
+        }
+    }
+
     // MARK: - Receive Pipeline
 
     private func handleIncomingData(_ data: Data, from sender: MCPeerID) {

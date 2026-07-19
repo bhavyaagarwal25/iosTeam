@@ -107,6 +107,21 @@ public struct RestaurantRootView: View {
                     : Color.green.opacity(0.1)
             )
             .clipShape(Capsule())
+            
+            // Menu for reloading/resetting
+            Menu {
+                Button(action: { receiver.clearOrders() }) {
+                    Label("Clear Orders", systemImage: "trash")
+                }
+                Button(action: { receiver.restartMesh() }) {
+                    Label("Restart Mesh", systemImage: "arrow.triangle.2.circlepath")
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle.fill")
+                    .font(.system(size: 22))
+                    .foregroundColor(.gray)
+            }
+            .padding(.leading, 8)
         }
         .padding(.horizontal, 20)
         .padding(.top, 56)
