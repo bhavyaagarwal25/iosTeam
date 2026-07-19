@@ -514,7 +514,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 229LDLFY2Y;
+				DEVELOPMENT_TEAM = 2BNQ3FFD52;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "RestaurantApp/RestaurantApp-Info.plist";
@@ -526,7 +526,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bhavy12a.restaurantapp;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.bhavy18-2a.restaurantapp";
 				PRODUCT_NAME = RestaurantApp;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -564,7 +564,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 229LDLFY2Y;
+				DEVELOPMENT_TEAM = 2BNQ3FFD52;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "RestaurantApp/RestaurantApp-Info.plist";
@@ -574,7 +574,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bhavy12a.restaurantapp;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.bhavy18-2a.restaurantapp";
 				PRODUCT_NAME = RestaurantApp;
 				SDKROOT = iphoneos;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
