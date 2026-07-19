@@ -52,8 +52,13 @@ struct trialApp: App {
                         if cart.totalItemCount > 0 {
                             activityManager.startCartActivity(itemCount: cart.totalItemCount, totalAmount: cart.grandTotal)
                         }
+                        // 🆕 MESH RELAY: Request background time to keep MPC session alive
+                        // long enough to deliver any held packets before iOS suspends the app.
+                        // UIApplication.shared.beginBackgroundTask gives up to 30 seconds.
+                        MeshRelayService.shared.beginBackgroundDeliveryTask()
                     } else if newPhase == .active {
                         activityManager.stopCartActivity()
+                        MeshRelayService.shared.endBackgroundDeliveryTask()
                     }
                 })
         }

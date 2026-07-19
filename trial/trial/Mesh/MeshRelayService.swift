@@ -239,8 +239,38 @@ public final class MeshRelayService: NSObject, ObservableObject {
     }
 
     // ═══════════════════════════════════════════════════════════════════
-    // MARK: - Remove Uploaded Packets
+    // MARK: - Background Delivery Task
     // ═══════════════════════════════════════════════════════════════════
+
+    /// Background task token — keeps the app alive for up to 30s after swipe-away
+    /// so MPC can finish delivering any held packets.
+    private var bgTaskID: UIBackgroundTaskIdentifier = .invalid
+
+    /// Call when app goes to background. Requests extra execution time from iOS.
+    /// If there are no held packets, returns immediately (no wasted battery).
+    public func beginBackgroundDeliveryTask() {
+        guard !heldPackets.isEmpty else { return }
+        guard bgTaskID == .invalid else { return } // already running
+
+        bgTaskID = UIApplication.shared.beginBackgroundTask(withName: "mesh.deliver") { [weak self] in
+            // Expiration handler — iOS is about to suspend us. Clean up.
+            self?.endBackgroundDeliveryTask()
+        }
+
+        #if DEBUG
+        print("📡 MeshRelay: Background delivery task started — \(heldPackets.count) packet(s) to deliver (up to 30s)")
+        #endif
+    }
+
+    /// Call when app returns to foreground, or after packets are confirmed delivered.
+    public func endBackgroundDeliveryTask() {
+        guard bgTaskID != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(bgTaskID)
+        bgTaskID = .invalid
+        #if DEBUG
+        print("📡 MeshRelay: Background delivery task ended")
+        #endif
+    }
 
     /// Called by MeshUploadService once a packet has been confirmed by the backend.
     /// Removes it from heldPackets so it stops being relayed.
@@ -249,6 +279,10 @@ public final class MeshRelayService: NSObject, ObservableObject {
         // Clean up delivery tracking for this packet
         sentDeliveries = sentDeliveries.filter { !$0.hasPrefix("\(packetId)|") }
         lastEvent = "Packet \(packetId.uuidString.prefix(8))… confirmed ✓"
+        // If no more held packets, we no longer need background time
+        if heldPackets.isEmpty {
+            endBackgroundDeliveryTask()
+        }
         #if DEBUG
         print("✅ MeshRelay: Packet \(packetId) uploaded — removed from held set")
         #endif
