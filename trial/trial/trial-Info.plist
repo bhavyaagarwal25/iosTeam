@@ -2,106 +2,61 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-
-    <!-- ── Standard iOS keys ───────────────────────────────────────── -->
-    <key>CFBundleDevelopmentRegion</key>
-    <string>$(DEVELOPMENT_LANGUAGE)</string>
-
-    <key>CFBundleDisplayName</key>
-    <string>Eternal Lite</string>
-
-    <key>CFBundleExecutable</key>
-    <string>$(EXECUTABLE_NAME)</string>
-
-    <key>CFBundleIdentifier</key>
-    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-
-    <key>CFBundleInfoDictionaryVersion</key>
-    <string>6.0</string>
-
-    <key>CFBundleName</key>
-    <string>$(PRODUCT_NAME)</string>
-
-    <key>CFBundlePackageType</key>
-    <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
-
-    <key>CFBundleShortVersionString</key>
-    <string>$(MARKETING_VERSION)</string>
-
-    <key>CFBundleVersion</key>
-    <string>$(CURRENT_PROJECT_VERSION)</string>
-
-    <!-- ── Orientations ────────────────────────────────────────────── -->
-    <key>UISupportedInterfaceOrientations</key>
-    <array>
-        <string>UIInterfaceOrientationPortrait</string>
-        <string>UIInterfaceOrientationLandscapeLeft</string>
-        <string>UIInterfaceOrientationLandscapeRight</string>
-    </array>
-
-    <key>UISupportedInterfaceOrientations~ipad</key>
-    <array>
-        <string>UIInterfaceOrientationPortrait</string>
-        <string>UIInterfaceOrientationPortraitUpsideDown</string>
-        <string>UIInterfaceOrientationLandscapeLeft</string>
-        <string>UIInterfaceOrientationLandscapeRight</string>
-    </array>
-
-    <!-- ── Scene manifest ──────────────────────────────────────────── -->
-    <key>UIApplicationSceneManifest</key>
-    <dict>
-        <key>UIApplicationSupportsMultipleScenes</key>
-        <false/>
-        <key>UISceneConfigurations</key>
-        <dict/>
-    </dict>
-
-    <!-- ── Launch screen ───────────────────────────────────────────── -->
-    <key>UILaunchScreen</key>
-    <dict/>
-
-    <!-- ── Live Activities ─────────────────────────────────────────── -->
-    <key>NSSupportsLiveActivities</key>
-    <true/>
-    <key>NSSupportsLiveActivitiesFrequentUpdates</key>
-    <true/>
-
-    <!-- ── Local network / MPC permissions ─────────────────────────── -->
-    <!--
-        NSLocalNetworkUsageDescription: shown in the system permission dialog
-        the first time MultipeerConnectivity tries to browse the local network.
-        Without this the OS blocks MPC on iOS 14+.
-    -->
-    <key>NSLocalNetworkUsageDescription</key>
-    <string>Eternal Lite uses Bluetooth and local Wi-Fi to relay orders to nearby devices when there's no internet connection.</string>
-
-    <!--
-        NSBonjourServices: MUST be an array. Each entry is the Bonjour service
-        type in the form _servicetype._protocol.
-        The MPC serviceType "eternallite-ord" maps to:
-          _eternallite-ord._tcp  (Wi-Fi Direct / TCP transport)
-          _eternallite-ord._udp  (Bluetooth transport)
-        Without this array NSNetServicesBrowser returns error -72008.
-    -->
-    <key>NSBonjourServices</key>
-    <array>
-        <string>_eternallite-ord._tcp</string>
-        <string>_eternallite-ord._udp</string>
-    </array>
-
-    <!-- ── BackgroundTasks ─────────────────────────────────────────── -->
-    <!--
-        BGTaskSchedulerPermittedIdentifiers: MUST be an array listing every
-        task identifier passed to BGTaskScheduler.shared.register().
-        Missing entries produce the "not advertised in Info.plist" error.
-    -->
-    <key>BGTaskSchedulerPermittedIdentifiers</key>
-    <array>
-        <!-- OfflineOrderQueue direct retry (already registered in trialApp.swift) -->
-        <string>com.eternallite.order.retry</string>
-        <!-- MeshUploadService background upload -->
-        <string>com.eternallite.mesh.upload</string>
-    </array>
-
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.eternallite.order.retry</string>
+		<string>com.eternallite.mesh.upload</string>
+	</array>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Eternal Lite</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_eternallite-ord._tcp</string>
+		<string>_eternallite-ord._udp</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Eternal Lite uses Bluetooth and local Wi-Fi to relay orders to nearby devices when there's no internet connection.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
+	<true/>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict/>
+	</dict>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
 </dict>
 </plist>
