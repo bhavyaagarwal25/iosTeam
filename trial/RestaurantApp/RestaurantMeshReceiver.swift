@@ -192,18 +192,24 @@ public final class RestaurantMeshReceiver: NSObject, ObservableObject {
 
             let envelope = try decoder.decode(EncryptedEnvelope.self, from: envelopeData)
 
-            // Dedup
+            // Dedup at envelope level — mark seen BEFORE decrypting so concurrent
+            // deliveries (e.g. both sides invited each other, rebroadcast on connect)
+            // are all dropped without extra work.
             guard !seenOrderIDs.contains(envelope.packetId) else {
                 print("🔁 RestaurantReceiver: Duplicate order \(envelope.packetId.uuidString.prefix(8)) — ignored")
                 return
             }
+            seenOrderIDs.insert(envelope.packetId)
 
             // Decrypt + verify
             let packet = try signer.decrypt(envelope)
 
-            seenOrderIDs.insert(packet.id)
-
             // Build and store the received order
+            // Safety net: also check the list itself in case of any race
+            guard !receivedOrders.contains(where: { $0.id == packet.id }) else {
+                print("🔁 RestaurantReceiver: Duplicate order \(packet.id.uuidString.prefix(8)) already in list — skipped")
+                return
+            }
             let order = ReceivedOrder(packet: packet, fromPeer: sender.displayName)
             receivedOrders.insert(order, at: 0) // newest first
 
