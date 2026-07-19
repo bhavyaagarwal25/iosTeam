@@ -6,6 +6,13 @@
 //  showing an error, we queue the order locally and submit it automatically
 //  when connectivity returns.
 //
+//  MESH INTEGRATION:
+//  When the device has zero internet, enqueue() also originates a signed
+//  OrderPacket via MeshRelayService so nearby devices can relay the order
+//  even before this device regains signal. The mesh and direct-upload paths
+//  are complementary — whichever reaches the backend first wins, and the
+//  idempotency key (order.id / packet.id) prevents double-creation.
+//
 //  APPLE APIs:
 //  - Foundation (Codable + FileManager for local queue persistence)
 //  - BackgroundTasks framework (BGAppRefreshTaskRequest for retry when app is backgrounded)
@@ -85,17 +92,53 @@ public final class OfflineOrderQueue: ObservableObject {
     
     /// Queue an order for submission when connectivity returns.
     /// Called when placeOrder() is tapped with no network.
+    ///
+    /// MESH PATH: Also originates a signed OrderPacket via MeshRelayService
+    /// so nearby peer devices can relay it to the backend even if this device
+    /// stays offline. The mesh path runs in parallel — whichever device (this
+    /// one or a relay) reaches the backend first creates the order; the
+    /// idempotency key (order.id) ensures no duplicates.
     public func enqueue(order: ZomatoOrder) {
         do {
             let orderData = try encoder.encode(order)
             let queued = QueuedOrder(id: order.id, orderData: orderData)
             queuedOrders.append(queued)
             saveQueue()
-            queueStatusMessage = "Order queued — will submit when you're back online"
-            
+            queueStatusMessage = "Order saved — sending via nearby devices"
+
             // Schedule a background task to retry when the app isn't in foreground
             scheduleBackgroundRetry()
-            
+
+            // ── Mesh relay path ──────────────────────────────────────────
+            // Originate a signed+encrypted OrderPacket into the peer mesh.
+            // This is fire-and-observe: MeshUploadService watches
+            // MeshRelayService.packetReceived and will upload the moment
+            // any node (this device or a peer) has internet.
+            Task { @MainActor in
+                do {
+                    let packet = try MeshRelayService.shared.originatePacket(
+                        items: order.items,
+                        restaurantId: order.restaurantId,
+                        restaurantName: order.restaurantName,
+                        deliveryAddress: order.deliveryAddress
+                    )
+                    // Register with status manager so MeshStatusBadge shows it
+                    let hasPeers = !MeshRelayService.shared.connectedPeerNames.isEmpty
+                    MeshOrderStatusManager.shared.registerAndUpdate(
+                        packet: packet,
+                        status: hasPeers ? .relayingNearby : .savedOnDevice
+                    )
+                    #if DEBUG
+                    print("📡 OfflineQueue: Originated mesh packet \(packet.id.uuidString.prefix(8))…")
+                    #endif
+                } catch {
+                    // Mesh origination failure is non-fatal — direct retry still works
+                    #if DEBUG
+                    print("⚠️  OfflineQueue: Mesh origination failed: \(error.localizedDescription)")
+                    #endif
+                }
+            }
+
             #if DEBUG
             print("📥 OfflineQueue: Enqueued order \(order.id) — \(queuedOrders.count) orders pending")
             #endif

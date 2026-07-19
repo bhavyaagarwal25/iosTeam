@@ -14,15 +14,29 @@ struct trialApp: App {
     @Environment(\.scenePhase) private var scenePhase
     
     init() {
-        // 🆕 ETERNAL LITE: Register background task for offline order retry
-        // Apple API: BGTaskScheduler — allows the app to process queued orders
-        // even when the user has backgrounded the app.
+        // 🆕 ETERNAL LITE: Register background tasks for offline order retry and mesh upload.
+        // Both identifiers must also appear in BGTaskSchedulerPermittedIdentifiers in Info.plist
+        // (trial-Info.plist) — otherwise the OS logs "not advertised in Info.plist" and ignores
+        // the registration entirely.
+
+        // 1. Direct offline queue retry (OfflineOrderQueue)
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: OfflineOrderQueue.backgroundTaskIdentifier,
             using: nil
         ) { task in
             Task { @MainActor in
                 OfflineOrderQueue.shared.handleBackgroundTask(task)
+            }
+        }
+
+        // 2. Mesh upload retry (MeshUploadService) — fires when connectivity
+        //    returns while the app is backgrounded and there are held packets.
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: MeshUploadService.backgroundTaskIdentifier,
+            using: nil
+        ) { task in
+            Task { @MainActor in
+                MeshUploadService.shared.handleBackgroundTask(task)
             }
         }
     }

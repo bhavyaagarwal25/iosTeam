@@ -11,6 +11,9 @@ public struct ZomatoHomeView: View {
     @StateObject private var viewModel = ZomatoHomeViewModel()
     @StateObject private var networkMonitor = NetworkMonitor.shared
     @StateObject private var apiService = EternalLiteAPIService.shared
+    // 🆕 MESH RELAY: Observe relay so lite-mode header can show peer count
+    @StateObject private var meshRelay = MeshRelayService.shared
+    @StateObject private var meshStatus = MeshOrderStatusManager.shared
     @State private var showSearch = false
     @State private var showCart = false
     @State private var showProfile = false
@@ -40,9 +43,21 @@ public struct ZomatoHomeView: View {
                         } else if networkMonitor.isLiteMode {
                             // 🆕 ETERNAL LITE: Text-only, no-image menu
                             // Saves bandwidth by eliminating all image downloads
-                            liteRestaurantList
-                                .padding(.top, 16)
-                                .background(Color(uiColor: .systemBackground))
+                            VStack(spacing: 0) {
+                                // 🆕 MESH RELAY: Show mesh order status when fully offline
+                                if !networkMonitor.isConnected, let latest = meshStatus.latestEntry {
+                                    HStack {
+                                        Spacer()
+                                        MeshStatusBadge(packetId: latest.id)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 12)
+                                }
+                                liteRestaurantList
+                            }
+                            .padding(.top, 16)
+                            .background(Color(uiColor: .systemBackground))
                         } else {
                             VStack(spacing: 20) {
                             categoriesView

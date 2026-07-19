@@ -36,6 +36,13 @@ public final class EternalLiteAPIService: ObservableObject {
     /// Whether we're currently in "traditional" (many calls) or "lite" (batched) mode
     @Published public var isUsingBatchedMode: Bool = true
     
+    /// Legacy mode toggle — simulates the old chatty behavior with 5+ calls
+    /// Toggle this during the demo to let judges watch API calls pile up
+    @Published public var isLegacyMode: Bool = false
+    
+    /// Total KB transferred this session (simulated payload sizes)
+    @Published public var totalKBTransferred: Int = 0
+    
     /// Last fetch timestamp
     @Published public var lastFetchTime: Date? = nil
     
@@ -174,7 +181,55 @@ public final class EternalLiteAPIService: ObservableObject {
     /// Reset the API call counter (for demo: "let's start fresh and compare")
     public func resetCounter() {
         apiCallCount = 0
+        totalKBTransferred = 0
         lastFetchTime = nil
+    }
+    
+    // MARK: - 🐌 Legacy Demo Flow (runs all 5 traditional calls back-to-back)
+    
+    /// Runs the full "traditional" fetch flow for side-by-side comparison.
+    /// Call this in Legacy mode to visibly increment the counter 5+ times.
+    /// Each call simulates realistic payload sizes to populate totalKBTransferred.
+    public func runLegacyDemo() async {
+        isLegacyMode = true
+        isLoading = true
+        defer { isLoading = false }
+        
+        // Traditional call #1: Fetch restaurants (avg ~85KB with images metadata)
+        _ = await fetchRestaurants()
+        totalKBTransferred += 85
+        
+        // Traditional call #2: Fetch cart state (~2KB)
+        _ = await fetchCart()
+        totalKBTransferred += 2
+        
+        // Traditional call #3: Fetch delivery fee (~1KB)
+        _ = await fetchDeliveryFee()
+        totalKBTransferred += 1
+        
+        // Traditional call #4: Fetch offers/coupons (~5KB)
+        _ = await fetchOffers()
+        totalKBTransferred += 5
+        
+        // Traditional call #5: Fetch addresses (~3KB)
+        _ = await fetchAddresses()
+        totalKBTransferred += 3
+        
+        // Traditional image downloads (~200KB per restaurant card × 10 restaurants)
+        apiCallCount += 10 // 10 image download requests
+        totalKBTransferred += 2000
+        
+        #if DEBUG
+        print("🐌 Legacy Demo: Completed 15 calls, ~\(totalKBTransferred)KB transferred")
+        #endif
+    }
+    
+    /// Runs the optimized Eternal Lite fetch for comparison.
+    /// Shows 1 call, minimal KB, cache hit.
+    public func runLiteDemo() async {
+        isLegacyMode = false
+        let _ = await fetchAggregatedData()
+        totalKBTransferred += 12 // Text-only payload is ~12KB
     }
     
     // MARK: - Mock Data Builder
