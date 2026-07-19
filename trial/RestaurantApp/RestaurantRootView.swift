@@ -35,27 +35,52 @@ public struct RestaurantRootView: View {
     private let zomatoRed = Color(red: 0.90, green: 0.10, blue: 0.20)
 
     public var body: some View {
-        ZStack(alignment: .top) {
-            // Background
-            Color(uiColor: .systemGroupedBackground)
-                .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                headerBar
-                statusBar
-
+        NavigationStack {
+            ZStack(alignment: .top) {
                 if receiver.receivedOrders.isEmpty {
                     emptyState
                 } else {
                     orderList
                 }
-            }
 
-            // New-order notification banner (slides in from top)
-            if bannerVisible, let order = bannerOrder {
-                newOrderBanner(order)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(10)
+                // New-order notification banner (slides in from top)
+                if bannerVisible, let order = bannerOrder {
+                    newOrderBanner(order)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .zIndex(10)
+                }
+            }
+            .background(Color(uiColor: .systemGroupedBackground))
+            .navigationTitle("Eternal Lite")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "fork.knife.circle.fill")
+                            .foregroundColor(zomatoRed)
+                            .font(.title3)
+                        Text("Dashboard")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    peerStatusMenu
+                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                HStack(spacing: 4) {
+                    Image(systemName: "clock")
+                        .font(.caption)
+                    Text(receiver.lastEvent)
+                        .font(.caption)
+                        .lineLimit(1)
+                }
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(.ultraThinMaterial)
             }
         }
         .onAppear {
@@ -67,38 +92,28 @@ public struct RestaurantRootView: View {
         }
     }
 
-    // ── HEADER BAR ─────────────────────────────────────────────────────
-    private var headerBar: some View {
-        HStack(spacing: 12) {
-            // App identity
-            HStack(spacing: 8) {
-                Image(systemName: "fork.knife.circle.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(zomatoRed)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("ETERNAL LITE")
-                        .font(.system(size: 13, weight: .black))
-                        .foregroundColor(.primary)
-                    Text("Restaurant Dashboard")
-                        .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+    // ── PEER STATUS MENU ───────────────────────────────────────────────
+    private var peerStatusMenu: some View {
+        Menu {
+            Section(header: Text("Mesh Actions")) {
+                Button(action: { receiver.clearOrders() }) {
+                    Label("Clear Orders", systemImage: "trash")
+                }
+                Button(action: { receiver.restartMesh() }) {
+                    Label("Restart Mesh", systemImage: "arrow.triangle.2.circlepath")
                 }
             }
-
-            Spacer()
-
-            // Peer / mesh status chip
+        } label: {
             HStack(spacing: 6) {
                 Circle()
                     .fill(receiver.connectedCustomerNames.isEmpty ? Color.orange : Color.green)
                     .frame(width: 8, height: 8)
                 Image(systemName: "antenna.radiowaves.left.and.right")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(receiver.connectedCustomerNames.isEmpty ? .orange : .green)
                 Text(receiver.connectedCustomerNames.isEmpty ? "No peers" : "\(receiver.connectedCustomerNames.count) peer\(receiver.connectedCustomerNames.count == 1 ? "" : "s")")
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(receiver.connectedCustomerNames.isEmpty ? .orange : .green)
             }
+            .foregroundColor(receiver.connectedCustomerNames.isEmpty ? .orange : .green)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(
@@ -107,106 +122,39 @@ public struct RestaurantRootView: View {
                     : Color.green.opacity(0.1)
             )
             .clipShape(Capsule())
-            
-            // Menu for reloading/resetting
-            Menu {
-                Button(action: { receiver.clearOrders() }) {
-                    Label("Clear Orders", systemImage: "trash")
-                }
-                Button(action: { receiver.restartMesh() }) {
-                    Label("Restart Mesh", systemImage: "arrow.triangle.2.circlepath")
-                }
-            } label: {
-                Image(systemName: "ellipsis.circle.fill")
-                    .font(.system(size: 22))
-                    .foregroundColor(.gray)
-            }
-            .padding(.leading, 8)
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 56)
-        .padding(.bottom, 14)
-        .background(Color(uiColor: .systemBackground))
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-    }
-
-    // ── STATUS BAR ─────────────────────────────────────────────────────
-    private var statusBar: some View {
-        HStack(spacing: 8) {
-            // Order count
-            if !receiver.receivedOrders.isEmpty {
-                Text("\(receiver.receivedOrders.count) ORDER\(receiver.receivedOrders.count == 1 ? "" : "S") TODAY")
-                    .font(.system(size: 11, weight: .black))
-                    .foregroundColor(zomatoRed)
-                    .tracking(1)
-            }
-
-            Spacer()
-
-            // Last event
-            HStack(spacing: 4) {
-                Image(systemName: "clock")
-                    .font(.system(size: 10))
-                Text(receiver.lastEvent)
-                    .font(.system(size: 11))
-                    .lineLimit(1)
-            }
-            .foregroundColor(.secondary)
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 10)
-        .background(Color(uiColor: .secondarySystemBackground))
     }
 
     // ── EMPTY STATE ────────────────────────────────────────────────────
     private var emptyState: some View {
-        VStack(spacing: 24) {
-            Spacer()
-
-            ZStack {
-                Circle()
-                    .fill(Color(uiColor: .secondarySystemBackground))
-                    .frame(width: 120, height: 120)
-                Image(systemName: "bell.slash")
-                    .font(.system(size: 44))
-                    .foregroundColor(.secondary)
-            }
-
-            VStack(spacing: 8) {
-                Text("No orders yet")
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.primary)
+        ContentUnavailableView {
+            Label("No orders yet", systemImage: "bell.slash")
+        } description: {
+            VStack(spacing: 16) {
                 Text(receiver.connectedCustomerNames.isEmpty
                      ? "Waiting for customer app to connect…"
                      : "Customer app connected. Place an order to see it appear here.")
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
-            }
-
-            // Peer names
-            if !receiver.connectedCustomerNames.isEmpty {
-                VStack(spacing: 6) {
-                    Text("CONNECTED DEVICES")
-                        .font(.system(size: 10, weight: .black))
-                        .foregroundColor(.secondary)
-                        .tracking(1)
-                    ForEach(receiver.connectedCustomerNames, id: \.self) { name in
-                        HStack(spacing: 8) {
-                            Circle().fill(Color.green).frame(width: 8, height: 8)
-                            Text(name)
-                                .font(.system(size: 14, weight: .medium))
+                
+                if !receiver.connectedCustomerNames.isEmpty {
+                    VStack(spacing: 8) {
+                        Text("CONNECTED DEVICES")
+                            .font(.caption.bold())
+                            .foregroundColor(.secondary)
+                            .tracking(1)
+                        ForEach(receiver.connectedCustomerNames, id: \.self) { name in
+                            HStack(spacing: 6) {
+                                Circle().fill(Color.green).frame(width: 8, height: 8)
+                                Text(name)
+                                    .font(.subheadline.weight(.medium))
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color(uiColor: .secondarySystemBackground))
+                            .clipShape(Capsule())
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color(uiColor: .secondarySystemBackground))
-                        .clipShape(Capsule())
                     }
                 }
             }
-
-            Spacer()
         }
     }
 
