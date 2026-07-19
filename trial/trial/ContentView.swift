@@ -24,7 +24,6 @@ public struct ContentView: View {
     
     @State private var selectedTab: Int = 0
     @State private var isZomatoMode: Bool = false
-    @State private var showProofScreen: Bool = false
     
     public init() {}
     
@@ -68,14 +67,6 @@ public struct ContentView: View {
                     .padding(.top, 50)
             }
         }
-        .overlay(alignment: .topTrailing) {
-            if isZomatoMode {
-                // Single unified demo console replaces two separate overlays
-                DemoConsole()
-                    .padding(.top, 56)
-                    .padding(.trailing, 12)
-            }
-        }
         // 🆕 MESH RELAY: Show order status badge above the tab bar when active
         .overlay(alignment: .bottom) {
             if let latest = meshStatus.latestEntry, !latest.status.isTerminal {
@@ -108,35 +99,14 @@ public struct ContentView: View {
                 }
             }
         }
-        .sheet(isPresented: $showProofScreen) {
-            ProofScreen()
-        }
     }
     
-    // MARK: - App Switcher Button (2-mode: Customer/Zomato + Proof Screen)
+    // MARK: - App Switcher Button (2-mode: Customer/Zomato)
     private var appSwitcherButton: some View {
         VStack {
             Spacer()
             HStack {
                 Spacer()
-                
-                // Proof Screen button (only in Zomato mode)
-                if isZomatoMode {
-                    Button(action: { showProofScreen = true }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chart.bar.fill")
-                            Text("Proof")
-                                .fontWeight(.bold)
-                        }
-                        .font(.system(size: 12))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 8)
-                        .background(Color.purple)
-                        .clipShape(Capsule())
-                        .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 4)
-                    }
-                }
                 
                 Button(action: {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {

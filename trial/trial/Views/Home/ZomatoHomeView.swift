@@ -304,14 +304,7 @@ public struct ZomatoHomeView: View {
             Spacer()
             
             HStack(spacing: 10) {
-                Button(action: {}) {
-                    Text("district")
-                        .font(.system(size: 14, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10).padding(.vertical, 6)
-                        .background(Color(red: 0.4, green: 0.2, blue: 0.8))
-                        .clipShape(Capsule())
-                }
+                DemoConsole()
                 
                 Button(action: {}) {
                     Circle().fill(Color.white.opacity(0.6)).frame(width: 36, height: 36)
@@ -365,13 +358,7 @@ public struct ZomatoHomeView: View {
             Spacer()
             
             HStack(spacing: 10) {
-                VStack(spacing: -1) {
-                    Text("GOLD").font(.system(size: 9, weight: .black))
-                    Text("₹1").font(.system(size: 11, weight: .black))
-                }
-                .foregroundColor(.black)
-                .padding(.horizontal, 10).padding(.vertical, 5)
-                .background(Capsule().fill(Color(red: 0.96, green: 0.82, blue: 0.15)))
+                DemoConsole()
                 
                 Button(action: {}) {
                     Circle().fill(Color.black.opacity(0.15)).frame(width: 36, height: 36)
